@@ -7,6 +7,7 @@ import { Screen } from '@/components/ui/screen';
 import { EmptyState } from '@/components/ui/states';
 import { DataRow, Section } from '@/components/ui/section';
 import { Text } from '@/components/ui/text';
+import { TrackSection } from '@/features/flights/track-section';
 import { describeAircraft } from '@/lib/describe-aircraft';
 import {
   formatAltitude,
@@ -102,6 +103,10 @@ export default function FlightDetailScreen() {
           <DataRow label="Squawk" value={aircraft.squawk ?? UNKNOWN} />
           <DataRow label="Position source" value={aircraft.positionSource} />
         </Section>
+
+        {/* Only offered while the flight is live: a track for an aircraft
+            last seen an hour ago returns little and still costs credits. */}
+        {live ? <TrackSection icao24={live.icao24} /> : null}
 
         <Section title="Freshness">
           <DataRow

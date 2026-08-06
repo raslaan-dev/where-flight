@@ -6,6 +6,7 @@ import { RefreshControl, StyleSheet, View } from 'react-native';
 import type { ApiErrorKind } from '@/api/opensky/errors';
 import type { Aircraft } from '@/api/opensky/types';
 import { Banner } from '@/components/ui/banner';
+import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/states';
 import { Text } from '@/components/ui/text';
@@ -73,7 +74,18 @@ export default function LiveScreen() {
   const freshness = freshnessBanner({ isOnline: online, fromCache, lastLoadedAt, errorKind, now });
 
   return (
-    <Screen title="Live" subtitle={DEFAULT_REGION.name} padded={false}>
+    <Screen
+      title="Live"
+      subtitle={DEFAULT_REGION.name}
+      padded={false}
+      actions={
+        <Button
+          label="Search"
+          variant="secondary"
+          onPress={() => router.push('/search')}
+          accessibilityHint="Searches flights, callsigns and airports"
+        />
+      }>
       <View style={styles.header}>
         {/* Only shown when the data is not live, so it never becomes wallpaper
             the user learns to ignore. */}

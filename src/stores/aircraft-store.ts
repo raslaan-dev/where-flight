@@ -4,6 +4,7 @@ import { ApiError, isApiError, type ApiErrorKind } from '@/api/opensky/errors';
 import type { Aircraft, AircraftSnapshot } from '@/api/opensky/types';
 import { bboxEquals, type Bbox } from '@/lib/geo';
 import { pollableCredits, remainingCredits, useBudgetStore } from './budget-store';
+import { activeCredentials } from './credentials-store';
 import { useFollowedStore } from './followed-store';
 import { isOnline, useNetworkStore } from './network-store';
 import { flushSnapshot, loadSnapshot, saveSnapshot } from './snapshot-cache';
@@ -100,7 +101,7 @@ export const useAircraftStore = create<AircraftState>()((set, get) => ({
     const network = useNetworkStore.getState();
 
     inFlight = fetchStates(bbox, {
-      credentials: null,
+      credentials: activeCredentials(),
       isOnline: isOnline(network),
       // Background polling stops at the reserve; a user-initiated refresh may
       // spend down to the last credit.

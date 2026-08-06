@@ -2,6 +2,8 @@ import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Row, Section } from '@/components/ui/section';
+import { AccountSection } from '@/features/settings/account-section';
+import { BudgetMeter } from '@/features/settings/budget-meter';
 import { Screen } from '@/components/ui/screen';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
@@ -122,6 +124,16 @@ export default function SettingsScreen() {
               trackColor={{ true: colors.accent, false: colors.borderStrong }}
             />
           </View>
+        </Section>
+
+        <Section title="OpenSky account">
+          <AccountSection />
+        </Section>
+
+        <Section
+          title="API budget"
+          description="Every request costs credits from a daily allowance. The app spends them for you; this is the receipt.">
+          <BudgetMeter />
         </Section>
 
         <Section

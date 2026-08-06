@@ -1,10 +1,16 @@
 import type { Bbox } from '@/lib/geo';
 import { clampBbox } from '@/lib/geo';
-import { statesRequestCost } from './costs';
+import { flightsRequestCost, statesRequestCost, TRACK_REQUEST_COST } from './costs';
 import { ApiError, kindFromStatus } from './errors';
-import { mapStatesResponse } from './mappers';
+import { mapFlightsResponse, mapStatesResponse, mapTrackResponse } from './mappers';
 import { getAccessToken, invalidateAccessToken, type OpenSkyCredentials } from './token';
-import type { AircraftSnapshot, RawStatesResponse } from './types';
+import type {
+  AircraftSnapshot,
+  AirportFlight,
+  FlightTrack,
+  RawStatesResponse,
+  RawTrackResponse,
+} from './types';
 
 const BASE_URL = 'https://opensky-network.org/api';
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -145,4 +151,85 @@ export async function fetchStates(
     throw new ApiError('BAD_PAYLOAD', 'The states response was not in the expected shape.');
   }
   return mapStatesResponse(payload);
+}
+
+/** Same budget → network gate order as `fetchStates`, shared by every fetch. */
+function assertCanSpend(cost: number, context: ClientContext): void {
+  if (context.remainingCredits < cost) {
+    throw new ApiError('BUDGET_EXHAUSTED', "Today's OpenSky allowance is used up.");
+  }
+  if (!context.isOnline) {
+    throw new ApiError('OFFLINE', 'No internet connection.');
+  }
+}
+
+function isRawTrackResponse(value: unknown): value is RawTrackResponse {
+  if (typeof value !== 'object' || value === null) return false;
+  const candidate = value as { icao24?: unknown; path?: unknown };
+  return (
+    typeof candidate.icao24 === 'string' &&
+    (candidate.path === null || Array.isArray(candidate.path))
+  );
+}
+
+/**
+ * Fetches the flown trajectory of one live aircraft.
+ *
+ * `time=0` asks for the track of the flight in progress. OpenSky restricts
+ * this endpoint to authenticated accounts, so anonymous callers get an
+ * `AUTH_INVALID` the UI must explain rather than hide.
+ */
+export async function fetchTrack(icao24: string, context: ClientContext): Promise<FlightTrack> {
+  assertCanSpend(TRACK_REQUEST_COST, context);
+
+  const payload = await requestJson(
+    `/tracks/all?icao24=${encodeURIComponent(icao24.toLowerCase())}&time=0`,
+    context
+  );
+  context.onCreditsSpent?.(TRACK_REQUEST_COST);
+
+  if (!isRawTrackResponse(payload)) {
+    throw new ApiError('BAD_PAYLOAD', 'The track response was not in the expected shape.');
+  }
+  return mapTrackResponse(payload);
+}
+
+export type ScheduleDirection = 'arrival' | 'departure';
+
+/**
+ * Fetches an airport's arrival or departure board for a time window.
+ *
+ * The costliest calls in the API — priced by how much of a day the window
+ * spans — which is why the airports feature caches results and asks before
+ * spending rather than fetching on scroll.
+ */
+export async function fetchAirportFlights(
+  direction: ScheduleDirection,
+  airportIcao: string,
+  beginUnix: number,
+  endUnix: number,
+  context: ClientContext
+): Promise<AirportFlight[]> {
+  const cost = flightsRequestCost(beginUnix, endUnix);
+  assertCanSpend(cost, context);
+
+  const query =
+    `?airport=${encodeURIComponent(airportIcao.toUpperCase())}` +
+    `&begin=${Math.floor(beginUnix)}&end=${Math.floor(endUnix)}`;
+
+  let payload: unknown;
+  try {
+    payload = await requestJson(`/flights/${direction}${query}`, context);
+  } catch (error) {
+    // OpenSky answers 404 — not an empty array — when nothing flew in the
+    // window. A quiet airfield is an answer, not a failure.
+    if (error instanceof ApiError && error.status === 404) {
+      context.onCreditsSpent?.(cost);
+      return [];
+    }
+    throw error;
+  }
+  context.onCreditsSpent?.(cost);
+
+  return mapFlightsResponse(payload);
 }

@@ -42,6 +42,13 @@ export function flightsRequestCost(beginUnix: number, endUnix: number): number {
   return 960;
 }
 
+/**
+ * Credits one `/tracks/all` call costs. A local estimate on the flights scale;
+ * the client reconciles against `X-Rate-Limit-Remaining` whenever OpenSky
+ * reports its own figure, so a wrong guess self-corrects within one request.
+ */
+export const TRACK_REQUEST_COST = 4;
+
 export function dailyCreditsFor(authenticated: boolean): number {
   return authenticated ? DAILY_CREDITS_AUTHENTICATED : DAILY_CREDITS_ANONYMOUS;
 }

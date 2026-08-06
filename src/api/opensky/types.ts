@@ -72,3 +72,59 @@ export type RawStatesResponse = {
   /** Null — not an empty array — when no aircraft are in the region. */
   states: RawStateVector[] | null;
 };
+
+/** One waypoint of a flown trajectory from `/tracks/all`. */
+export type TrackPoint = {
+  /** Unix seconds. */
+  time: number;
+  latitude: number;
+  longitude: number;
+  /** Barometric altitude in metres — the only altitude tracks carry. */
+  altitude: number | null;
+  /** Degrees clockwise from true north. */
+  trueTrack: number | null;
+  onGround: boolean;
+};
+
+export type FlightTrack = {
+  icao24: string;
+  callsign: string | null;
+  /** Unix seconds of the first and last waypoint. */
+  startTime: number;
+  endTime: number;
+  /** Chronological. Waypoints without a position are dropped. */
+  path: TrackPoint[];
+};
+
+/** Raw `/tracks/all` wire format: waypoints are positional arrays too. */
+export type RawTrackResponse = {
+  icao24: string;
+  startTime: number;
+  endTime: number;
+  callsign: string | null;
+  path: (number | boolean | null)[][] | null;
+};
+
+/** One row of an airport's arrival or departure board. */
+export type AirportFlight = {
+  icao24: string;
+  callsign: string | null;
+  /** Callsign if known, otherwise the ICAO hex. Never empty. */
+  label: string;
+  /** Unix seconds the aircraft was first and last seen on this flight. */
+  firstSeen: number;
+  lastSeen: number;
+  /** ICAO airport codes. Null when OpenSky could not estimate the airport. */
+  departureAirport: string | null;
+  arrivalAirport: string | null;
+};
+
+/** Raw `/flights/arrival` and `/flights/departure` row. */
+export type RawFlight = {
+  icao24?: unknown;
+  firstSeen?: unknown;
+  lastSeen?: unknown;
+  callsign?: unknown;
+  estDepartureAirport?: unknown;
+  estArrivalAirport?: unknown;
+};

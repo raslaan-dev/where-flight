@@ -1,10 +1,15 @@
 import type {
   Aircraft,
   AircraftSnapshot,
+  AirportFlight,
   AltitudeSource,
+  FlightTrack,
   PositionSource,
+  RawFlight,
   RawStateVector,
   RawStatesResponse,
+  RawTrackResponse,
+  TrackPoint,
   VerticalTrend,
 } from './types';
 
@@ -178,4 +183,78 @@ export function mapStatesResponse(response: RawStatesResponse): AircraftSnapshot
   }
 
   return { time, aircraft: [...byId.values()], discarded };
+}
+
+/** Waypoint field offsets in a `/tracks/all` path entry. */
+const TRACK_FIELD = {
+  time: 0,
+  latitude: 1,
+  longitude: 2,
+  baroAltitude: 3,
+  trueTrack: 4,
+  onGround: 5,
+} as const;
+
+function mapTrackPoint(row: (number | boolean | null)[]): TrackPoint | null {
+  if (!Array.isArray(row)) return null;
+  const time = readNumber(row[TRACK_FIELD.time]);
+  const latitude = readNumber(row[TRACK_FIELD.latitude]);
+  const longitude = readNumber(row[TRACK_FIELD.longitude]);
+  // A waypoint that cannot be placed cannot be drawn or spoken; drop it.
+  if (time === null || latitude === null || longitude === null) return null;
+  return {
+    time,
+    latitude,
+    longitude,
+    altitude: readNumber(row[TRACK_FIELD.baroAltitude]),
+    trueTrack: readNumber(row[TRACK_FIELD.trueTrack]),
+    onGround: row[TRACK_FIELD.onGround] === true,
+  };
+}
+
+/** Maps a `/tracks/all` response. `path` is null for very fresh flights. */
+export function mapTrackResponse(response: RawTrackResponse): FlightTrack {
+  const rows = Array.isArray(response?.path) ? response.path : [];
+  const path = rows
+    .map(mapTrackPoint)
+    .filter((point): point is TrackPoint => point !== null)
+    .sort((a, b) => a.time - b.time);
+
+  return {
+    icao24: readString(response?.icao24)?.toLowerCase() ?? '',
+    callsign: readString(response?.callsign),
+    startTime: readNumber(response?.startTime) ?? path[0]?.time ?? 0,
+    endTime: readNumber(response?.endTime) ?? path[path.length - 1]?.time ?? 0,
+    path,
+  };
+}
+
+function mapFlight(row: RawFlight): AirportFlight | null {
+  if (typeof row !== 'object' || row === null) return null;
+  const icao24 = readString(row.icao24)?.toLowerCase();
+  const firstSeen = readNumber(row.firstSeen);
+  const lastSeen = readNumber(row.lastSeen);
+  if (!icao24 || firstSeen === null || lastSeen === null) return null;
+
+  // Space-padded like state vector callsigns; airport codes can be null when
+  // OpenSky saw the aircraft but could not attribute an airport.
+  const callsign = readString(row.callsign);
+  return {
+    icao24,
+    callsign,
+    label: callsign ?? icao24.toUpperCase(),
+    firstSeen,
+    lastSeen,
+    departureAirport: readString(row.estDepartureAirport),
+    arrivalAirport: readString(row.estArrivalAirport),
+  };
+}
+
+/** Maps a `/flights/arrival` or `/flights/departure` response, newest first. */
+export function mapFlightsResponse(rows: unknown): AirportFlight[] {
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .map((row) => mapFlight(row as RawFlight))
+    .filter((flight): flight is AirportFlight => flight !== null)
+    .sort((a, b) => b.lastSeen - a.lastSeen);
 }

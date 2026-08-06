@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import { useAircraftStore } from './aircraft-store';
+import { useAirportsStore } from './airports-store';
 import { useBudgetStore } from './budget-store';
+import { useCredentialsStore } from './credentials-store';
 import { useFollowedStore } from './followed-store';
 import { useMapStore } from './map-store';
+import { useSearchStore } from './search-store';
 import { useSettingsStore } from './settings-store';
 
 /**
@@ -16,7 +19,14 @@ import { useSettingsStore } from './settings-store';
  * removes all three.
  */
 
-const PERSISTED = [useSettingsStore, useBudgetStore, useFollowedStore, useMapStore] as const;
+const PERSISTED = [
+  useSettingsStore,
+  useBudgetStore,
+  useFollowedStore,
+  useMapStore,
+  useAirportsStore,
+  useSearchStore,
+] as const;
 
 function whenRehydrated(store: (typeof PERSISTED)[number]): Promise<void> {
   if (store.persist.hasHydrated()) return Promise.resolve();
@@ -31,8 +41,9 @@ function whenRehydrated(store: (typeof PERSISTED)[number]): Promise<void> {
 export async function hydrateStores(): Promise<void> {
   await Promise.all([
     ...PERSISTED.map(whenRehydrated),
-    // The snapshot cache is written by hand, so it is awaited by hand.
+    // These two are written by hand, so they are awaited by hand.
     useAircraftStore.getState().hydrate(),
+    useCredentialsStore.getState().hydrate(),
   ]);
 }
 

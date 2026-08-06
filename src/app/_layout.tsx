@@ -27,6 +27,7 @@ function RootNavigator() {
           contentStyle: { backgroundColor: colors.bg },
         }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="search" options={{ presentation: 'modal' }} />
       </Stack>
     </>
   );
