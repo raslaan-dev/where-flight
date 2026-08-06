@@ -5,13 +5,17 @@ import { RefreshControl, StyleSheet, View } from 'react-native';
 
 import type { ApiErrorKind } from '@/api/opensky/errors';
 import type { Aircraft } from '@/api/opensky/types';
+import { Banner } from '@/components/ui/banner';
 import { Screen } from '@/components/ui/screen';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/states';
 import { Text } from '@/components/ui/text';
 import { AircraftListItem } from '@/features/flights/aircraft-list-item';
+import { freshnessBanner } from '@/features/flights/freshness';
 import { formatRelativeTime } from '@/lib/format';
 import { DEFAULT_REGION } from '@/lib/regions';
+import { useNow } from '@/lib/use-now';
 import { useAircraftStore, visibleAircraft, type LoadStatus } from '@/stores/aircraft-store';
+import { isOnline, useNetworkStore } from '@/stores/network-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { space, useTheme } from '@/theme';
 
@@ -31,11 +35,14 @@ export default function LiveScreen() {
   const errorKind = useAircraftStore((state) => state.errorKind);
   const lastLoadedAt = useAircraftStore((state) => state.lastLoadedAt);
   const bbox = useAircraftStore((state) => state.bbox);
+  const fromCache = useAircraftStore((state) => state.fromCache);
   const setBbox = useAircraftStore((state) => state.setBbox);
   const refresh = useAircraftStore((state) => state.refresh);
 
+  const online = useNetworkStore(isOnline);
   const units = useSettingsStore((state) => state.units);
   const showOnGround = useSettingsStore((state) => state.showOnGround);
+  const now = useNow();
 
   useEffect(() => {
     if (bbox === null) setBbox(DEFAULT_REGION.bbox);
@@ -64,20 +71,30 @@ export default function LiveScreen() {
     [units, onSelect]
   );
 
-  const summary = summarise({ count: aircraft.length, lastLoadedAt, status });
+  const summary = summarise({ count: aircraft.length, lastLoadedAt, status, now });
+  const freshness = freshnessBanner({ isOnline: online, fromCache, lastLoadedAt, errorKind, now });
 
   return (
     <Screen title="Live" subtitle={DEFAULT_REGION.name} padded={false}>
-      {/* A polite live region: the count changes on every poll, and a screen
-          reader user needs to hear it without losing their place. */}
-      <View
-        style={styles.summary}
-        accessible
-        accessibilityLiveRegion="polite"
-        accessibilityLabel={summary}>
-        <Text variant="caption" tone="muted">
-          {summary}
-        </Text>
+      <View style={styles.header}>
+        {/* Only shown when the data is not live, so it never becomes wallpaper
+            the user learns to ignore. */}
+        {freshness && snapshot ? (
+          <Banner
+            tone={freshness.tone}
+            message={freshness.message}
+            actionLabel={online ? 'Retry' : undefined}
+            onAction={online ? () => void refresh() : undefined}
+          />
+        ) : null}
+
+        {/* A polite live region: the count changes on every poll, and a screen
+            reader user needs to hear it without losing their place. */}
+        <View accessible accessibilityLiveRegion="polite" accessibilityLabel={summary}>
+          <Text variant="caption" tone="muted">
+            {summary}
+          </Text>
+        </View>
       </View>
 
       <Body
@@ -98,14 +115,16 @@ function summarise({
   count,
   lastLoadedAt,
   status,
+  now,
 }: {
   count: number;
   lastLoadedAt: number | null;
   status: LoadStatus;
+  now: number;
 }): string {
   if (status === 'loading') return 'Loading aircraft';
   if (lastLoadedAt === null) return 'No data loaded yet';
-  const age = formatRelativeTime((Date.now() - lastLoadedAt) / 1000);
+  const age = formatRelativeTime((now - lastLoadedAt) / 1000);
   return `${count} aircraft in view, updated ${age}`;
 }
 
@@ -176,7 +195,7 @@ function Separator() {
 }
 
 const styles = StyleSheet.create({
-  summary: { paddingHorizontal: space.lg, paddingBottom: space.sm },
+  header: { paddingHorizontal: space.lg, paddingBottom: space.sm, gap: space.sm },
   list: { paddingHorizontal: space.lg, paddingBottom: space.xxl },
   separator: { height: space.sm },
 });

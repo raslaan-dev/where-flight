@@ -1,15 +1,25 @@
 import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 
+import { Button } from '@/components/ui/button';
 import { Row, Section } from '@/components/ui/section';
 import { Screen } from '@/components/ui/screen';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
+import { useFollowedStore } from '@/stores/followed-store';
 import { useSettingsStore } from '@/stores/settings-store';
+import { clearSnapshot } from '@/stores/snapshot-cache';
 import { space, useTheme } from '@/theme';
 
 export default function SettingsScreen() {
   const { colors, reduceMotion } = useTheme();
   const settings = useSettingsStore();
+  const followedCount = useFollowedStore((state) => state.flights.length);
+  const clearFollowed = useFollowedStore((state) => state.clear);
+
+  const clearStoredData = () => {
+    clearFollowed();
+    void clearSnapshot();
+  };
 
   return (
     <Screen title="Settings" subtitle="Appearance, units and accessibility">
@@ -112,6 +122,21 @@ export default function SettingsScreen() {
               trackColor={{ true: colors.accent, false: colors.borderStrong }}
             />
           </View>
+        </Section>
+
+        <Section
+          title="Storage"
+          description="Everything this app saves stays on this device. Nothing is uploaded.">
+          <Row
+            label={`${followedCount} followed flight${followedCount === 1 ? '' : 's'}`}
+            description="Each one keeps its last known position so the Saved tab works with no connection."
+          />
+          <Button
+            label="Clear saved data"
+            variant="secondary"
+            onPress={clearStoredData}
+            accessibilityHint="Removes followed flights and the cached aircraft positions"
+          />
         </Section>
 
         <Section title="About">

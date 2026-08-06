@@ -1,8 +1,12 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { installFetchMock, jsonResponse } from '@/test-utils/fetch-mock';
 import { DEFAULT_REGION } from '@/lib/regions';
 import { resetAircraftStore, useAircraftStore, visibleAircraft } from '../aircraft-store';
 import { useBudgetStore, utcDayKey } from '../budget-store';
+import { useFollowedStore } from '../followed-store';
 import { useNetworkStore } from '../network-store';
+import { flushSnapshot, loadSnapshot, resetSnapshotCache, saveSnapshot } from '../snapshot-cache';
 import type { Aircraft, AircraftSnapshot } from '@/api/opensky/types';
 
 const NOW = 1_786_034_585;
@@ -36,9 +40,12 @@ function statesBody(rows: unknown[][]) {
   return jsonResponse({ time: NOW, states: rows });
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   jest.restoreAllMocks();
   resetAircraftStore();
+  resetSnapshotCache();
+  await AsyncStorage.clear();
+  useFollowedStore.setState({ flights: [] });
   useBudgetStore.setState({ dayKeyUtc: utcDayKey(), used: 0, log: [], authenticated: false });
   useNetworkStore.setState({ isConnected: true, isInternetReachable: true, hasChecked: true });
   useAircraftStore.getState().setBbox(DEFAULT_REGION.bbox);
@@ -124,6 +131,74 @@ describe('refresh', () => {
 
     await useAircraftStore.getState().refresh();
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('offline persistence', () => {
+  it('caches what it fetched, so a relaunch is not a blank screen', async () => {
+    installFetchMock(jest.fn(async () => statesBody([row('407a06')])));
+
+    await useAircraftStore.getState().refresh();
+    await flushSnapshot();
+
+    expect((await loadSnapshot())?.snapshot.aircraft[0].icao24).toBe('407a06');
+  });
+
+  it('restores the cached snapshot on launch and flags it as not live', async () => {
+    await saveSnapshot(
+      { time: NOW, aircraft: [], discarded: { noPosition: 0, tooOld: 0, malformed: 0, duplicate: 0 } },
+      DEFAULT_REGION.bbox
+    );
+    resetAircraftStore();
+
+    await useAircraftStore.getState().hydrate();
+
+    const state = useAircraftStore.getState();
+    expect(state.snapshot).not.toBeNull();
+    expect(state.fromCache).toBe(true);
+    // Cached data is real but old; calling it 'ready' would hide that.
+    expect(state.status).toBe('idle');
+    expect(state.lastLoadedAt).not.toBeNull();
+  });
+
+  it('marks itself hydrated even when there is nothing cached', async () => {
+    await useAircraftStore.getState().hydrate();
+    expect(useAircraftStore.getState().hydrated).toBe(true);
+    expect(useAircraftStore.getState().snapshot).toBeNull();
+  });
+
+  it('never lets a slow disk read overwrite a network response that already landed', async () => {
+    await saveSnapshot(
+      { time: 1, aircraft: [], discarded: { noPosition: 0, tooOld: 0, malformed: 0, duplicate: 0 } },
+      DEFAULT_REGION.bbox
+    );
+    installFetchMock(jest.fn(async () => statesBody([row('407a06')])));
+
+    await useAircraftStore.getState().refresh();
+    await useAircraftStore.getState().hydrate();
+
+    expect(useAircraftStore.getState().snapshot?.aircraft).toHaveLength(1);
+    expect(useAircraftStore.getState().fromCache).toBe(false);
+  });
+
+  it('updates the telemetry stored against a followed flight', async () => {
+    installFetchMock(jest.fn(async () => statesBody([row('407a06', { 13: 9000 })])));
+    useFollowedStore.setState({
+      flights: [
+        {
+          icao24: '407a06',
+          label: 'TST123',
+          followedAt: 0,
+          lastSeenAt: 0,
+          // Only the fields the sync compares matter to this test.
+          lastSeen: { icao24: '407a06', altitude: 1, lastContact: 0 } as Aircraft,
+        },
+      ],
+    });
+
+    await useAircraftStore.getState().refresh();
+
+    expect(useFollowedStore.getState().flights[0].lastSeen.altitude).toBe(9000);
   });
 });
 

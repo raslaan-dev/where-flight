@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { EmptyState } from '@/components/ui/states';
@@ -17,6 +18,7 @@ import {
 } from '@/lib/format';
 import { bearingToCompass } from '@/lib/geo';
 import { useAircraftStore } from '@/stores/aircraft-store';
+import { ageSecondsOf, useFollowedStore } from '@/stores/followed-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { altitudeBandLabel, space } from '@/theme';
 
@@ -25,9 +27,19 @@ export default function FlightDetailScreen() {
   const { icao24 } = useLocalSearchParams<{ icao24: string }>();
   const router = useRouter();
   const units = useSettingsStore((state) => state.units);
-  const aircraft = useAircraftStore((state) =>
+  const live = useAircraftStore((state) =>
     state.snapshot?.aircraft.find((item) => item.icao24 === icao24)
   );
+  const followed = useFollowedStore((state) =>
+    state.flights.find((flight) => flight.icao24 === icao24)
+  );
+  const toggle = useFollowedStore((state) => state.toggle);
+
+  // Falling back to the stored copy is what lets this screen open at all from
+  // the Saved tab with no connection.
+  const aircraft = live ?? followed?.lastSeen;
+  const isFollowing = followed !== undefined;
+  const storedAge = followed && !live ? formatRelativeTime(ageSecondsOf(followed)) : null;
 
   if (!aircraft) {
     return (
@@ -45,6 +57,13 @@ export default function FlightDetailScreen() {
   return (
     <Screen title={aircraft.label} subtitle={aircraft.originCountry}>
       <ScrollView contentContainerStyle={styles.content}>
+        {storedAge ? (
+          <Banner
+            tone="warn"
+            message={`This aircraft is not in the current view. Showing the last reading saved, from ${storedAge}.`}
+          />
+        ) : null}
+
         {/* The visual layout below is a table of fragments; this gives a screen
             reader the same information as one coherent sentence. */}
         <View accessible accessibilityLabel={describeAircraft(aircraft, { units })}>
@@ -99,7 +118,19 @@ export default function FlightDetailScreen() {
           />
         </Section>
 
-        <Button label="Back" variant="secondary" onPress={() => router.back()} />
+        <View style={styles.actions}>
+          <Button
+            label={isFollowing ? 'Unfollow' : 'Follow'}
+            variant={isFollowing ? 'secondary' : 'primary'}
+            onPress={() => toggle(aircraft)}
+            accessibilityHint={
+              isFollowing
+                ? 'Removes this flight from the Saved tab'
+                : 'Keeps this flight in the Saved tab, available offline'
+            }
+          />
+          <Button label="Back" variant="ghost" onPress={() => router.back()} />
+        </View>
       </ScrollView>
     </Screen>
   );
@@ -107,4 +138,5 @@ export default function FlightDetailScreen() {
 
 const styles = StyleSheet.create({
   content: { gap: space.lg, paddingBottom: space.xxl },
+  actions: { flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' },
 });
