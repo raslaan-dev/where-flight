@@ -6,6 +6,7 @@ import { AppState } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { ErrorBoundary } from '@/components/error-boundary';
 import { useAircraftStore } from '@/stores/aircraft-store';
 import { useHydrated } from '@/stores/hydration';
 import { subscribeToNetwork } from '@/stores/network-store';
@@ -59,7 +60,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider>
-          <RootNavigator />
+          {/* Inside the theme provider so the crash screen can still theme. */}
+          <ErrorBoundary>
+            <RootNavigator />
+          </ErrorBoundary>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

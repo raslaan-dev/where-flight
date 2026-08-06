@@ -9,6 +9,7 @@ import { DataRow, Section } from '@/components/ui/section';
 import { Text } from '@/components/ui/text';
 import { TrackSection } from '@/features/flights/track-section';
 import { describeAircraft } from '@/lib/describe-aircraft';
+import { hapticConfirm } from '@/lib/haptics';
 import {
   formatAltitude,
   formatRelativeTime,
@@ -127,7 +128,10 @@ export default function FlightDetailScreen() {
           <Button
             label={isFollowing ? 'Unfollow' : 'Follow'}
             variant={isFollowing ? 'secondary' : 'primary'}
-            onPress={() => toggle(aircraft)}
+            onPress={() => {
+              hapticConfirm();
+              toggle(aircraft);
+            }}
             accessibilityHint={
               isFollowing
                 ? 'Removes this flight from the Saved tab'

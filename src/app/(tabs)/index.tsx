@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import type { Aircraft } from '@/api/opensky/types';
+import { ErrorBoundary } from '@/components/error-boundary';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
@@ -173,13 +174,25 @@ export default function MapScreen() {
                 reason="Map tiles could not be loaded. Positions are real; the background is not."
               />
             ) : (
-              <FlightMap
-                ref={mapRef}
-                aircraft={aircraft}
-                pinned={pinned}
-                includeOnGround={showOnGround}
-                onViewportChange={onViewportChange}
-              />
+              // A WebView render crash degrades to the radar; the tab bar,
+              // controls and every other screen stay up.
+              <ErrorBoundary
+                fallback={() => (
+                  <OfflineRadar
+                    aircraft={aircraft}
+                    bbox={bbox}
+                    selectedIcao24={selectedIcao24}
+                    reason="The map crashed and has been replaced with a simplified view. Positions are still real."
+                  />
+                )}>
+                <FlightMap
+                  ref={mapRef}
+                  aircraft={aircraft}
+                  pinned={pinned}
+                  includeOnGround={showOnGround}
+                  onViewportChange={onViewportChange}
+                />
+              </ErrorBoundary>
             )}
 
             <MapControls

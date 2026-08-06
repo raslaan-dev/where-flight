@@ -1,56 +1,184 @@
-# Welcome to your Expo app 👋
+# where-flight
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A live flight tracker built on the [OpenSky Network](https://opensky-network.org)
+API — designed around two ideas most flight trackers ignore:
 
-## Get started
+1. **The map is a visualisation, not the interface.** Every aircraft, every
+   action and every piece of telemetry is reachable through fully accessible
+   native screens. The map is one of two renderers over the same state.
+2. **API credits are the user's money.** OpenSky gives 400 free credits a day.
+   The app budgets them: polling adapts to what is left, expensive requests
+   show their price on the button before they run, and everything fetched is
+   cached so a second look is free.
 
-1. Install dependencies
+Built with Expo (React Native + TypeScript) for UFCF7H-15-3 Mobile
+Applications.
 
-   ```bash
-   npm install
-   ```
+## Screenshots
 
-2. Start the app
+| Map | Live list | Flight detail |
+|---|---|---|
+| ![Map](docs/screenshots/map.png) | ![Live](docs/screenshots/live.png) | ![Detail](docs/screenshots/detail.png) |
 
-   ```bash
-   npx expo start
-   ```
+| Airports | Saved (offline) | Settings |
+|---|---|---|
+| ![Airports](docs/screenshots/airports.png) | ![Saved](docs/screenshots/saved.png) | ![Settings](docs/screenshots/settings.png) |
 
-In the output, you'll find options to open the app in a
+## Running it
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+No configuration is needed — the app works anonymously out of the box.
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Scan the QR code with [Expo Go](https://expo.dev/go) on a physical device
+(recommended — many emulators lack the WebGL the map uses; the app detects
+this and falls back to a native radar view).
 
-### Other setup steps
+Checks:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npx tsc --noEmit   # types
+npm test           # 27 suites, 418 tests
+npx expo-doctor    # project health
+```
 
-## Learn more
+## Features
 
-To learn more about developing your project with Expo, look at the following resources:
+- **Map** — live aircraft over the UK on a MapLibre vector map, rendered as a
+  single GeoJSON layer (no per-plane DOM nodes), with rotation by heading,
+  altitude-coloured markers, tap-to-select, and native zoom/recentre/reset
+  controls. A **List view** toggle swaps it for the same data as a list; with
+  a screen reader running, list view is the default.
+- **Live** — the same traffic as an accessible list: one spoken sentence per
+  aircraft, pull-to-refresh, honest loading/error/empty states.
+- **Flight detail** — full telemetry, follow/unfollow, and (with an account)
+  the flight's altitude profile drawn from `/tracks` with a spoken summary.
+- **Saved** — followed flights persist with their full last-known telemetry,
+  so the tab works completely offline with "last seen 14 minutes ago"
+  timestamps.
+- **Airports** — arrivals and departures for ~40 bundled airports. These are
+  OpenSky's most expensive calls, so nothing loads until a button showing the
+  credit price is pressed; fetched boards are cached to disk.
+- **Search** — one box over live aircraft, followed flights and the airport
+  directory. Costs nothing; works offline; remembers recent queries.
+- **Settings** — theme (incl. two high-contrast palettes), units, motion,
+  on-ground filter, haptics, an OpenSky account connection, and a budget
+  meter that receipts every API request.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Architecture
 
-## Join the community
+```
+src/
+  api/opensky/      token manager, HTTP client, mappers, credit costs, errors
+  app/              expo-router file-based routes
+    (tabs)/         map · live · saved · airports · settings
+    flight/[icao24] telemetry + altitude ribbon
+    search          modal over everything the app knows
+  components/       themed UI kit (Button, Banner, states, ErrorBoundary…)
+  features/
+    map/            WebView bridge, GeoJSON diffing, offline radar, controls
+    flights/        list items, polling controller, track summary
+    settings/       account connection, budget meter
+  stores/           zustand slices, each with its own persist config
+  theme/            palettes, WCAG contrast + CVD simulation (both tested)
+  lib/              pure logic: geo, formatting, spoken descriptions
+```
 
-Join our community of developers creating universal apps.
+**Data flow.** One polling controller (mounted once, at the tab layout) fetches
+`/states/all` for the current viewport — debounced, quantised to a grid so
+small pans don't burn credits, and gated on focus, foreground, connectivity
+and remaining budget. Results land in a zustand store; the map and every list
+render from that same store.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+**The map bridge.** The WebView runs MapLibre GL JS; React Native talks to it
+over a typed message protocol (positional diffs in, viewport/selection events
+out) with a ready handshake, throttled `setData`, and crash recovery — if
+Android kills the WebView process, the map remounts and replays its snapshot.
+If WebGL is missing entirely, a native SVG radar renders the same aircraft.
+
+**Persistence.** Each store persists exactly what is worth keeping: the last
+aircraft snapshot (throttled writes), followed flights with full telemetry,
+airport boards, settings, the credit ledger, recent searches, and the map
+camera. A hydration gate holds the splash screen until every store is read
+back, so the app never flashes the wrong theme or an empty Saved tab.
+
+**Error handling.** Every API failure maps to a typed kind with plain-English
+copy and a route forward (retry, view cached, fix credentials) — never a dead
+end. Error boundaries sit at the root and around the map specifically, so a
+WebView crash degrades one component instead of the app.
+
+## The credit budget
+
+| Request | Cost | Policy |
+|---|---|---|
+| `/states/all` (viewport) | 1–4 by area | polled automatically, adaptive interval |
+| `/tracks/all` (flight path) | 4 | button, price shown, account required |
+| `/flights/arrival`/`departure` | 8 for the 2 h window | button, price shown, board cached |
+
+Spend is tracked in a persisted ledger keyed to the UTC day (OpenSky's reset
+boundary), reconciled against the server's `X-Rate-Limit-Remaining` header
+when present, and 10% is held in reserve so a deliberate tap still works after
+polling has spent the rest.
+
+## Why the client secret is not in the app
+
+Settings can connect a personal OpenSky API client for the 4,000-credit tier.
+The credentials go into **expo-secure-store** (the hardware-backed
+Keychain/Keystore) — never AsyncStorage, never the JS bundle, never a log
+line. Shipping a shared secret inside the app (in code, `app.config`, or an
+`EXPO_PUBLIC_*` variable) would be extractable in minutes; a `.env` file
+protects the *repository*, not the *installed app*. The production-correct
+design is a server-side token broker; for a device-local coursework app,
+user-supplied credentials in the keystore are the honest ceiling — and
+anonymous mode remains the zero-config default so the app runs with no setup.
+
+## Accessibility
+
+Accessibility is the app's organising principle, not a checklist item — the
+full write-up, including the gesture→equivalent table and the manual
+TalkBack/VoiceOver checklist, is in
+[docs/accessibility.md](docs/accessibility.md). Highlights:
+
+- Screen-reader-first map alternative (list view, live announcements, named
+  controls instead of gestures).
+- Pure, unit-tested spoken descriptions for every aircraft and flight path.
+- A 48 dp touch-target floor enforced by the shared Pressable *and by a test*.
+- Four palettes with WCAG ratios asserted in tests; the altitude ramp is
+  verified against three colour-vision-deficiency simulations.
+- Full dynamic-type support: at 130%+ scale the tab bar, rows and grids
+  genuinely re-lay-out rather than clipping.
+
+## Testing
+
+418 tests across 27 suites (jest-expo), aimed where the risk is: the OpenSky
+mappers (every documented data quirk), credit-cost boundaries, UTC budget
+rollover, the token manager's single-flight refresh, geo maths, map diffing,
+spoken descriptions, palette contrast/CVD guarantees, the 48 dp floor, and
+store behaviour including offline fallbacks and cache eviction.
+
+## Known limitations
+
+- OpenSky coverage is crowdsourced: sparse over oceans, Africa and much of
+  Asia. Empty results in those regions are correct, and the empty-state copy
+  says so.
+- MapLibre GL JS loads from a CDN on first map use; without any network the
+  map falls back to cached tiles or the radar view (aircraft data itself
+  follows the app's offline story).
+- Flight paths (`/tracks`) are only available to authenticated accounts —
+  OpenSky's restriction, explained in-app rather than hidden.
+- The bundled airport directory covers ~40 major airports; arbitrary ICAO
+  codes still render on boards, just without friendly names.
+
+## Attribution & licence
+
+- Flight data: © [The OpenSky Network](https://opensky-network.org), used
+  under its [terms](https://opensky-network.org/about/terms-of-use) for
+  non-commercial research and education.
+- Basemap: © [OpenStreetMap](https://www.openstreetmap.org/copyright)
+  contributors, © [CARTO](https://carto.com/attributions) (attribution is kept
+  visible on the map).
+
+Coursework project — not for commercial use.

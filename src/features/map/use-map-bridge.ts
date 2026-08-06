@@ -4,6 +4,7 @@ import type { WebViewMessageEvent } from 'react-native-webview';
 
 import type { Aircraft } from '@/api/opensky/types';
 import { clampBbox, type Bbox, type LatLon } from '@/lib/geo';
+import { hapticSelect } from '@/lib/haptics';
 import { useMapStore } from '@/stores/map-store';
 
 import {
@@ -113,6 +114,9 @@ export function useMapBridge({
           );
           break;
         case 'select':
+          // A canvas gives no press feedback of its own, so selection is the
+          // one map interaction that earns a haptic.
+          hapticSelect();
           store.select(message.icao24);
           break;
         case 'deselect':
