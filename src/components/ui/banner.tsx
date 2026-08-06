@@ -35,17 +35,25 @@ export function Banner({ tone = 'info', message, actionLabel, onAction }: Banner
           borderColor: accent,
           borderWidth: borderWidthFor(colors),
         },
-      ]}
-      accessible
-      // The banner appears in response to something changing, so it announces
-      // itself rather than waiting to be found by a swipe.
-      accessibilityLiveRegion="polite"
-      accessibilityRole={tone === 'info' ? 'text' : 'alert'}
-      accessibilityLabel={message}>
-      <Text style={{ color: accent }}>{glyph}</Text>
-      <Text variant="caption" style={styles.message}>
-        {message}
-      </Text>
+      ]}>
+      {/* The message groups into one announcement, but the action button stays
+          OUTSIDE the accessible wrapper: `accessible` collapses descendants, and
+          a retry button swallowed into a label can never be activated. */}
+      <View
+        style={styles.message}
+        accessible
+        // The banner appears in response to something changing, so it announces
+        // itself rather than waiting to be found by a swipe.
+        accessibilityLiveRegion="polite"
+        accessibilityRole={tone === 'info' ? 'text' : 'alert'}
+        accessibilityLabel={message}>
+        <View style={styles.messageRow}>
+          <Text style={{ color: accent }}>{glyph}</Text>
+          <Text variant="caption" style={styles.message}>
+            {message}
+          </Text>
+        </View>
+      </View>
       {actionLabel && onAction ? (
         <Pressable onPress={onAction} accessibilityRole="button" accessibilityLabel={actionLabel}>
           <Text variant="caption" style={{ color: colors.accent }}>
@@ -67,4 +75,5 @@ const styles = StyleSheet.create({
     paddingVertical: space.sm,
   },
   message: { flex: 1 },
+  messageRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
 });

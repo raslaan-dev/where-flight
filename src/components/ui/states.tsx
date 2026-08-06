@@ -40,13 +40,18 @@ export function ErrorState({ kind, onRetry, onUseCached }: ErrorStateProps) {
   const copy = ERROR_COPY[kind];
 
   return (
-    <View style={styles.centred} accessible accessibilityRole="alert">
-      <Text variant="heading" heading>
-        {copy.title}
-      </Text>
-      <Text tone="muted" style={styles.body}>
-        {copy.body}
-      </Text>
+    <View style={styles.centred}>
+      {/* The text groups into one announcement; the buttons stay outside it,
+          because `accessible` collapses descendants and a retry button
+          swallowed into the alert text could never be focused or pressed. */}
+      <View style={styles.copy} accessible accessibilityRole="alert">
+        <Text variant="heading" heading>
+          {copy.title}
+        </Text>
+        <Text tone="muted" style={styles.body}>
+          {copy.body}
+        </Text>
+      </View>
       <View style={styles.actions}>
         {copy.primaryAction && onRetry ? (
           <Button label={copy.primaryAction} onPress={onRetry} />
@@ -68,13 +73,16 @@ export type EmptyStateProps = {
 
 export function EmptyState({ title, body, actionLabel, onAction }: EmptyStateProps) {
   return (
-    <View style={styles.centred} accessible>
-      <Text variant="heading" heading>
-        {title}
-      </Text>
-      <Text tone="muted" style={styles.body}>
-        {body}
-      </Text>
+    <View style={styles.centred}>
+      {/* Same grouping rule as ErrorState: text together, button reachable. */}
+      <View style={styles.copy} accessible>
+        <Text variant="heading" heading>
+          {title}
+        </Text>
+        <Text tone="muted" style={styles.body}>
+          {body}
+        </Text>
+      </View>
       {actionLabel && onAction ? (
         <Button label={actionLabel} onPress={onAction} variant="secondary" />
       ) : null}
@@ -90,6 +98,7 @@ const styles = StyleSheet.create({
     gap: space.md,
     paddingHorizontal: space.lg,
   },
+  copy: { alignItems: 'center', gap: space.md },
   body: { textAlign: 'center' },
   actions: { flexDirection: 'row', gap: space.sm, flexWrap: 'wrap', justifyContent: 'center' },
 });
