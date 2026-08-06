@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
+import { usePollingController } from '@/features/flights/use-polling-controller';
 import { borderWidthFor, fontSize, useTheme } from '@/theme';
 
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -15,6 +16,10 @@ const TABS: { name: string; title: string; icon: IconName }[] = [
 
 export default function TabsLayout() {
   const { colors, stackedLayout } = useTheme();
+
+  // Mounted here, once. A refresh loop per screen would multiply the daily
+  // credit spend by the number of tabs the user happens to have visited.
+  usePollingController();
 
   return (
     <Tabs

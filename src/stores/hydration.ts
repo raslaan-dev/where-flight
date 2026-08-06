@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAircraftStore } from './aircraft-store';
 import { useBudgetStore } from './budget-store';
 import { useFollowedStore } from './followed-store';
+import { useMapStore } from './map-store';
 import { useSettingsStore } from './settings-store';
 
 /**
@@ -15,7 +16,7 @@ import { useSettingsStore } from './settings-store';
  * removes all three.
  */
 
-const PERSISTED = [useSettingsStore, useBudgetStore, useFollowedStore] as const;
+const PERSISTED = [useSettingsStore, useBudgetStore, useFollowedStore, useMapStore] as const;
 
 function whenRehydrated(store: (typeof PERSISTED)[number]): Promise<void> {
   if (store.persist.hasHydrated()) return Promise.resolve();

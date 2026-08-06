@@ -44,13 +44,11 @@ export default function LiveScreen() {
   const showOnGround = useSettingsStore((state) => state.showOnGround);
   const now = useNow();
 
+  // Fetching is the polling controller's job, mounted once at the tab layout.
+  // This screen only ensures there is a region to fetch.
   useEffect(() => {
     if (bbox === null) setBbox(DEFAULT_REGION.bbox);
   }, [bbox, setBbox]);
-
-  useEffect(() => {
-    if (bbox !== null && status === 'idle') void refresh();
-  }, [bbox, status, refresh]);
 
   const aircraft = useMemo(
     () => visibleAircraft(snapshot, showOnGround),
