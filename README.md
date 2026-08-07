@@ -45,6 +45,15 @@ npm test           # 27 suites, 418 tests
 npx expo-doctor    # project health
 ```
 
+### Why Expo SDK 54 and not the latest
+
+Deliberate, not neglect. Apple has not approved a new Expo Go build since
+SDK 54, so the App Store version is capped there and every later SDK requires
+either a paid Apple Developer account (`eas go`, TestFlight) or a custom
+development build to run on a physical iPhone. Pinning to 54 keeps the app
+installable on any marker's device with nothing but the free Expo Go app.
+Nothing here uses an SDK 55+ API, so the ceiling costs the project nothing.
+
 ## Features
 
 - **Map** — live aircraft over the UK on a MapLibre vector map, rendered as a
