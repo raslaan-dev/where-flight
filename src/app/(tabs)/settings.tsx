@@ -140,14 +140,14 @@ export default function SettingsScreen() {
           title="Storage"
           description="Everything this app saves stays on this device. Nothing is uploaded.">
           <Row
-            label={`${followedCount} followed flight${followedCount === 1 ? '' : 's'}`}
-            description="Each one keeps its last known position so the Saved tab works with no connection."
+            label={`${followedCount} tracked flight${followedCount === 1 ? '' : 's'}`}
+            description="Each one keeps its last known position so the Track tab works with no connection."
           />
           <Button
             label="Clear saved data"
             variant="secondary"
             onPress={clearStoredData}
-            accessibilityHint="Removes followed flights and the cached aircraft positions"
+            accessibilityHint="Removes tracked flights and the cached aircraft positions"
           />
         </Section>
 

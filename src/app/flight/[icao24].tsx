@@ -38,7 +38,7 @@ export default function FlightDetailScreen() {
   const toggle = useFollowedStore((state) => state.toggle);
 
   // Falling back to the stored copy is what lets this screen open at all from
-  // the Saved tab with no connection.
+  // the Track tab with no connection.
   const aircraft = live ?? followed?.lastSeen;
   const isFollowing = followed !== undefined;
   const storedAge = followed && !live ? formatRelativeTime(ageSecondsOf(followed)) : null;
@@ -126,7 +126,7 @@ export default function FlightDetailScreen() {
 
         <View style={styles.actions}>
           <Button
-            label={isFollowing ? 'Unfollow' : 'Follow'}
+            label={isFollowing ? 'Stop tracking' : 'Track flight'}
             variant={isFollowing ? 'secondary' : 'primary'}
             onPress={() => {
               hapticConfirm();
@@ -134,8 +134,8 @@ export default function FlightDetailScreen() {
             }}
             accessibilityHint={
               isFollowing
-                ? 'Removes this flight from the Saved tab'
-                : 'Keeps this flight in the Saved tab, available offline'
+                ? 'Removes this flight from the Track tab'
+                : 'Keeps this flight in the Track tab, available offline'
             }
           />
           <Button label="Back" variant="ghost" onPress={() => router.back()} />

@@ -20,9 +20,9 @@ Applications.
 |---|---|---|
 | ![Map](docs/screenshots/map.png) | ![Live](docs/screenshots/live.png) | ![Detail](docs/screenshots/detail.png) |
 
-| Airports | Saved (offline) | Settings |
+| Airports | Track (offline) | Settings |
 |---|---|---|
-| ![Airports](docs/screenshots/airports.png) | ![Saved](docs/screenshots/saved.png) | ![Settings](docs/screenshots/settings.png) |
+| ![Airports](docs/screenshots/airports.png) | ![Track](docs/screenshots/track.png) | ![Settings](docs/screenshots/settings.png) |
 
 ## Running it
 
@@ -41,7 +41,7 @@ Checks:
 
 ```bash
 npx tsc --noEmit   # types
-npm test           # 27 suites, 418 tests
+npm test           # 29 suites, 444 tests
 npx expo-doctor    # project health
 ```
 
@@ -66,15 +66,15 @@ Nothing here uses an SDK 55+ API, so the ceiling costs the project nothing.
   reader running, list view is the default.
 - **Live** — the same traffic as an accessible list: one spoken sentence per
   aircraft, pull-to-refresh, honest loading/error/empty states.
-- **Flight detail** — full telemetry, follow/unfollow, and (with an account)
+- **Flight detail** — full telemetry, track/untrack, and (with an account)
   the flight's altitude profile drawn from `/tracks` with a spoken summary.
-- **Saved** — followed flights persist with their full last-known telemetry,
+- **Track** — tracked flights persist with their full last-known telemetry,
   so the tab works completely offline with "last seen 14 minutes ago"
   timestamps.
 - **Airports** — arrivals and departures for ~40 bundled airports. These are
   OpenSky's most expensive calls, so nothing loads until a button showing the
   credit price is pressed; fetched boards are cached to disk.
-- **Search** — one box over live aircraft, followed flights and the airport
+- **Search** — one box over live aircraft, tracked flights and the airport
   directory. Costs nothing; works offline; remembers recent queries.
 - **Settings** — theme (incl. two high-contrast palettes), units, motion,
   on-ground filter, haptics, an OpenSky account connection, and a budget
@@ -86,7 +86,7 @@ Nothing here uses an SDK 55+ API, so the ceiling costs the project nothing.
 src/
   api/opensky/      token manager, HTTP client, mappers, credit costs, errors
   app/              expo-router file-based routes
-    (tabs)/         map · live · saved · airports · settings
+    (tabs)/         map · live · track · airports · settings
     flight/[icao24] telemetry + altitude ribbon
     search          modal over everything the app knows
   components/       themed UI kit (Button, Banner, states, ErrorBoundary…)
@@ -112,10 +112,10 @@ Android kills the WebView process, the map remounts and replays its snapshot.
 If WebGL is missing entirely, a native SVG radar renders the same aircraft.
 
 **Persistence.** Each store persists exactly what is worth keeping: the last
-aircraft snapshot (throttled writes), followed flights with full telemetry,
+aircraft snapshot (throttled writes), tracked flights with full telemetry,
 airport boards, settings, the credit ledger, recent searches, and the map
 camera. A hydration gate holds the splash screen until every store is read
-back, so the app never flashes the wrong theme or an empty Saved tab.
+back, so the app never flashes the wrong theme or an empty Track tab.
 
 **Error handling.** Every API failure maps to a typed kind with plain-English
 copy and a route forward (retry, view cached, fix credentials) — never a dead

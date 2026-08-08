@@ -13,7 +13,7 @@ import { subscribeToNetwork } from '@/stores/network-store';
 import { ThemeProvider, useTheme } from '@/theme';
 
 // Held until every store has been read back off disk, so the app never opens
-// in the wrong theme or with an empty Saved tab that fills in a frame later.
+// in the wrong theme or with an empty Track tab that fills in a frame later.
 void SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {

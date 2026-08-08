@@ -13,7 +13,7 @@ import { useSettingsStore } from './settings-store';
  * Waits for everything that lives on disk before the app is shown.
  *
  * Rendering first and hydrating after is visible as a flash: the app opens in
- * the wrong theme, the Saved tab appears empty for a frame, and the budget
+ * the wrong theme, the Track tab appears empty for a frame, and the budget
  * reads zero long enough to trigger a fetch it should not have made. Holding
  * the splash screen until storage has been read costs a few milliseconds and
  * removes all three.

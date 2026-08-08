@@ -94,9 +94,9 @@ describe('FollowedListItem', () => {
     expect(onPress).toHaveBeenCalledWith('4b1815');
   });
 
-  it('names the flight in the unfollow control, so it is unambiguous out of context', async () => {
+  it('names the flight in the untrack control, so it is unambiguous out of context', async () => {
     const { onRemove } = await renderRow();
-    await fireEvent.press(screen.getByLabelText('Unfollow SWR123'));
+    await fireEvent.press(screen.getByLabelText('Stop tracking SWR123'));
     expect(onRemove).toHaveBeenCalledWith('4b1815');
   });
 

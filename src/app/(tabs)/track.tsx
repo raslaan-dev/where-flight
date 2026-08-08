@@ -21,7 +21,7 @@ import { space } from '@/theme';
  * the flight was last seen, which is what makes it work identically in airplane
  * mode — the case the persistence is actually for.
  */
-export default function SavedScreen() {
+export default function TrackScreen() {
   const router = useRouter();
   const flights = useFollowedStore((state) => state.flights);
   const unfollow = useFollowedStore((state) => state.unfollow);
@@ -53,11 +53,11 @@ export default function SavedScreen() {
 
   const summary =
     flights.length === 0
-      ? 'No followed flights'
-      : `${flights.length} followed flight${flights.length === 1 ? '' : 's'}`;
+      ? 'No tracked flights'
+      : `${flights.length} tracked flight${flights.length === 1 ? '' : 's'}`;
 
   return (
-    <Screen title="Saved" subtitle="Available offline" padded={false}>
+    <Screen title="Track" subtitle="Available offline" padded={false}>
       <View style={styles.header}>
         {!online ? (
           <Banner
@@ -74,8 +74,8 @@ export default function SavedScreen() {
 
       {flights.length === 0 ? (
         <EmptyState
-          title="Nothing followed yet"
-          body="Open a flight from the Live tab and tap Follow. Followed flights keep their last known position, so they still work with no connection."
+          title="Nothing tracked yet"
+          body="Tap an aircraft on the Map and choose Track, or open one from the Live tab. Tracked flights keep their last known position, so they still work with no connection."
           actionLabel="Go to Live"
           onAction={() => router.push('/live')}
         />

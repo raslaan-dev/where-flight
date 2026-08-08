@@ -8,7 +8,7 @@ import type { Aircraft, AircraftSnapshot } from '@/api/opensky/types';
  * Flights the user follows.
  *
  * The whole `Aircraft` record is kept, not just the identifier. Storing an id
- * alone would mean the Saved tab could only render a list of hex codes in
+ * alone would mean the Track tab could only render a list of hex codes in
  * airplane mode, and the aircraft that matters most to a user — the one they
  * deliberately followed — would be the one they could see least about. With the
  * full telemetry on disk, a card offline is the same card as online, honestly
@@ -34,7 +34,7 @@ export type FollowedFlight = {
 };
 
 export type FollowedState = {
-  /** Newest first, so the Saved tab needs no sort at render time. */
+  /** Newest first, so the Track tab needs no sort at render time. */
   flights: FollowedFlight[];
 
   follow: (aircraft: Aircraft) => void;

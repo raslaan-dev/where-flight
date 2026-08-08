@@ -16,7 +16,7 @@ import { FlightMap, type FlightMapHandle } from '@/features/map/flight-map';
 import { MapControls } from '@/features/map/map-controls';
 import { OfflineRadar } from '@/features/map/offline-radar';
 import { inject } from '@/features/map/protocol';
-import { TrailControl } from '@/features/map/trail-control';
+import { SelectionCard } from '@/features/map/selection-card';
 import { useViewportBbox } from '@/features/map/use-viewport-bbox';
 import { formatRelativeTime } from '@/lib/format';
 import { DEFAULT_REGION } from '@/lib/regions';
@@ -205,25 +205,12 @@ export default function MapScreen() {
             />
 
             {selected ? (
-              <View
-                style={[
-                  styles.preview,
-                  { backgroundColor: colors.bgElevated, borderColor: colors.border },
-                ]}>
-                <AircraftListItem
-                  aircraft={selected}
-                  units={units}
-                  selected
-                  onPress={openSelected}
-                />
-                <TrailControl icao24={selected.icao24} />
-                <Button
-                  label="Clear selection"
-                  variant="ghost"
-                  onPress={() => select(null)}
-                  accessibilityHint="Removes the highlight from this aircraft"
-                />
-              </View>
+              <SelectionCard
+                aircraft={selected}
+                units={units}
+                onOpenDetails={openSelected}
+                onClear={() => select(null)}
+              />
             ) : null}
           </>
         )}
@@ -287,14 +274,4 @@ const styles = StyleSheet.create({
   canvas: { flex: 1 },
   list: { paddingHorizontal: space.lg, paddingBottom: space.xxl },
   separator: { height: space.sm },
-  preview: {
-    position: 'absolute',
-    left: space.md,
-    right: space.md,
-    bottom: space.md,
-    padding: space.sm,
-    borderRadius: 16,
-    borderWidth: 1,
-    gap: space.sm,
-  },
 });

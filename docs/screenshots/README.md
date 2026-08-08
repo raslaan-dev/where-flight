@@ -7,7 +7,7 @@ the root README references:
 - `live.png` — Live tab list with the freshness caption visible
 - `detail.png` — Flight detail with the altitude ribbon loaded
 - `airports.png` — An airport board with the credit-cost button visible
-- `saved.png` — Saved tab in airplane mode, showing "last seen" timestamps
+- `track.png` — Track tab in airplane mode, showing "last seen" timestamps
 - `settings.png` — Settings with the budget meter showing real spend
 
 Android: Power + Volume-down. Then copy from the device's Screenshots folder.

@@ -85,11 +85,11 @@ function FollowedListItemComponent({
           <Pressable
             onPress={() => onRemove(flight.icao24)}
             accessibilityRole="button"
-            accessibilityLabel={`Unfollow ${flight.label}`}
+            accessibilityLabel={`Stop tracking ${flight.label}`}
             allowSmallTarget
             style={styles.remove}>
             <Text variant="caption" style={{ color: colors.accent }}>
-              Unfollow
+              Untrack
             </Text>
           </Pressable>
         </View>

@@ -54,7 +54,7 @@ beforeEach(() => {
 describe('following', () => {
   it('stores the whole aircraft, not just its identifier', () => {
     useFollowedStore.getState().follow(aircraft());
-    // The point of the store: an id alone leaves the Saved tab unable to render
+    // The point of the store: an id alone leaves the Track tab unable to render
     // anything but a hex code once the aircraft is out of view.
     expect(flights()[0].lastSeen.velocity).toBe(230);
     expect(flights()[0].lastSeen.originCountry).toBe('United Kingdom');
