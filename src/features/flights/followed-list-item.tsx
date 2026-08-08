@@ -92,9 +92,18 @@ function FollowedListItemComponent({
             accessibilityHint="Opens the map centred on this flight"
             style={[
               styles.mapButton,
-              { borderColor: colors.borderStrong, borderWidth: borderWidthFor(colors) },
+              {
+                backgroundColor: colors.accentMuted,
+                borderColor: colors.accent,
+                borderWidth: borderWidthFor(colors),
+              },
             ]}>
-            <MaterialCommunityIcons name="map-marker-outline" size={20} color={colors.accent} />
+            {/* Text as well as the glyph: an icon font that fails to load would
+                otherwise render this as an empty box with no clue what it does. */}
+            <MaterialCommunityIcons name="map-marker-outline" size={16} color={colors.accent} />
+            <Text variant="caption" style={{ color: colors.accent }}>
+              Map
+            </Text>
           </Pressable>
         </View>
 
@@ -142,10 +151,13 @@ const styles = StyleSheet.create({
     gap: space.md,
   },
   mapButton: {
-    borderRadius: radius.sm,
-    padding: space.xs,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 4,
+    borderRadius: radius.sm,
+    paddingHorizontal: space.sm,
+    paddingVertical: space.xs,
   },
   identity: { flexShrink: 1, gap: 2 },
   telemetry: { alignItems: 'flex-end', gap: 2 },
