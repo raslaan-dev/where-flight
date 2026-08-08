@@ -6,11 +6,19 @@ import { borderWidthFor, fontSize, useTheme } from '@/theme';
 
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
+/**
+ * Tab bar order, left to right.
+ *
+ * Declared explicitly rather than left to the filesystem: expo-router falls
+ * back to alphabetical order for any route it is not given a `Tabs.Screen`
+ * for, which would put Track last purely because of how its file is spelled.
+ * Settings stays rightmost — it is the one tab nobody is looking for mid-task.
+ */
 const TABS: { name: string; title: string; icon: IconName }[] = [
   { name: 'index', title: 'Map', icon: 'map-outline' },
   { name: 'search', title: 'Search', icon: 'magnify' },
-  { name: 'track', title: 'Track', icon: 'bookmark-outline' },
   { name: 'airports', title: 'Airports', icon: 'airport' },
+  { name: 'track', title: 'Track', icon: 'bookmark-outline' },
   { name: 'settings', title: 'Settings', icon: 'cog-outline' },
 ];
 
