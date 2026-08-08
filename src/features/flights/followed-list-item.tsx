@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -16,6 +17,7 @@ export type FollowedListItemProps = {
    *  ticks from one clock reading rather than each row calling `Date.now()`. */
   ageSeconds?: number;
   onPress: (icao24: string) => void;
+  onShowOnMap: (icao24: string) => void;
   onRemove: (icao24: string) => void;
 };
 
@@ -27,6 +29,7 @@ export type FollowedListItemProps = {
  * left for the user to assume.
  */
 function FollowedListItemComponent({
+  onShowOnMap,
   flight,
   units,
   ageSeconds,
@@ -51,32 +54,49 @@ function FollowedListItemComponent({
       <View style={[styles.band, { backgroundColor: altitudeColour(aircraft.altitude, colors) }]} />
 
       <View style={styles.body}>
-        <Pressable
-          onPress={() => onPress(flight.icao24)}
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel={`${describeAircraft(aircraft, { units })} Last seen ${seen}.`}
-          accessibilityHint="Opens the full flight details"
-          allowSmallTarget
-          style={styles.main}>
-          <View style={styles.identity}>
-            <Text variant="bodyStrong" numberOfLines={1}>
-              {flight.label}
-            </Text>
-            <Text variant="caption" tone="muted" numberOfLines={1}>
-              {aircraft.originCountry}
-            </Text>
-          </View>
+        {/* The map button is a sibling of the row, never a child: the row sets
+            `accessible`, which collapses its descendants into one label, and a
+            button swallowed by that could be heard but never pressed. */}
+        <View style={styles.topRow}>
+          <Pressable
+            onPress={() => onPress(flight.icao24)}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel={`${describeAircraft(aircraft, { units })} Last seen ${seen}.`}
+            accessibilityHint="Opens the full flight details"
+            allowSmallTarget
+            style={styles.main}>
+            <View style={styles.identity}>
+              <Text variant="bodyStrong" numberOfLines={1}>
+                {flight.label}
+              </Text>
+              <Text variant="caption" tone="muted" numberOfLines={1}>
+                {aircraft.originCountry}
+              </Text>
+            </View>
 
-          <View style={[styles.telemetry, stackedLayout && styles.telemetryStacked]}>
-            <Text variant="mono">
-              {aircraft.onGround ? 'On ground' : formatAltitude(aircraft.altitude, units)}
-            </Text>
-            <Text variant="caption" tone="muted">
-              {formatSpeed(aircraft.velocity, units)}
-            </Text>
-          </View>
-        </Pressable>
+            <View style={[styles.telemetry, stackedLayout && styles.telemetryStacked]}>
+              <Text variant="mono">
+                {aircraft.onGround ? 'On ground' : formatAltitude(aircraft.altitude, units)}
+              </Text>
+              <Text variant="caption" tone="muted">
+                {formatSpeed(aircraft.velocity, units)}
+              </Text>
+            </View>
+          </Pressable>
+
+          <Pressable
+            onPress={() => onShowOnMap(flight.icao24)}
+            accessibilityRole="button"
+            accessibilityLabel={`Show ${flight.label} on the map`}
+            accessibilityHint="Opens the map centred on this flight"
+            style={[
+              styles.mapButton,
+              { borderColor: colors.borderStrong, borderWidth: borderWidthFor(colors) },
+            ]}>
+            <MaterialCommunityIcons name="map-marker-outline" size={20} color={colors.accent} />
+          </Pressable>
+        </View>
 
         <View style={[styles.footer, stackedLayout && styles.footerStacked]}>
           <Text variant="caption" tone={age > 300 ? 'warn' : 'muted'}>
@@ -111,11 +131,21 @@ const styles = StyleSheet.create({
   card: { flexDirection: 'row', borderRadius: radius.md, overflow: 'hidden', minHeight: 88 },
   band: { width: 6 },
   body: { flex: 1, padding: space.md, gap: space.sm },
+  // Top-aligned so the button stays in the corner as the row grows taller with
+  // larger text, rather than drifting to the middle of the card.
+  topRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
   main: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: space.md,
+  },
+  mapButton: {
+    borderRadius: radius.sm,
+    padding: space.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   identity: { flexShrink: 1, gap: 2 },
   telemetry: { alignItems: 'flex-end', gap: 2 },

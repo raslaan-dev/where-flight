@@ -38,10 +38,11 @@ export default function TrackScreen() {
     [flights, now]
   );
 
-  // Tapping a tracked flight goes to the map with it highlighted, not straight
-  // to the detail screen — seeing where it is is the reason to track it. The
-  // card on the map is one tap from the full details.
-  const onPress = useCallback(
+  const onPress = useCallback((icao24: string) => router.push(`/flight/${icao24}`), [router]);
+
+  // Now its own control rather than the whole card, so both destinations are
+  // reachable: the card opens the telemetry, the corner button opens the map.
+  const onShowOnMap = useCallback(
     (icao24: string) => {
       const flight = flights.find((item) => item.icao24 === icao24);
       const { latitude, longitude } = flight?.lastSeen ?? {};
@@ -61,6 +62,7 @@ export default function TrackScreen() {
         units={units}
         ageSeconds={ages.get(item.icao24)}
         onPress={onPress}
+        onShowOnMap={onShowOnMap}
         onRemove={unfollow}
       />
     ),

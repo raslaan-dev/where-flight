@@ -46,6 +46,7 @@ const METRICS = {
 async function renderRow(overrides: Partial<FollowedListItemArgs> = {}) {
   const onPress = overrides.onPress ?? jest.fn();
   const onRemove = overrides.onRemove ?? jest.fn();
+  const onShowOnMap = overrides.onShowOnMap ?? jest.fn();
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
       <ThemeProvider>
@@ -54,18 +55,20 @@ async function renderRow(overrides: Partial<FollowedListItemArgs> = {}) {
           units="aviation"
           ageSeconds={overrides.ageSeconds ?? 840}
           onPress={onPress}
+          onShowOnMap={onShowOnMap}
           onRemove={onRemove}
         />
       </ThemeProvider>
     </SafeAreaProvider>
   );
-  return { onPress, onRemove };
+  return { onPress, onRemove, onShowOnMap };
 }
 
 type FollowedListItemArgs = {
   flight: FollowedFlight;
   ageSeconds: number;
   onPress: jest.Mock;
+  onShowOnMap: jest.Mock;
   onRemove: jest.Mock;
 };
 
@@ -73,6 +76,18 @@ describe('FollowedListItem', () => {
   it('states how old the reading is, rather than implying it is current', async () => {
     await renderRow();
     expect(screen.getByText('Last seen 14 minutes ago')).toBeTruthy();
+  });
+
+  it('offers the map as its own control, reachable separately from the row', async () => {
+    const { onShowOnMap, onPress } = await renderRow();
+
+    // Named, because "show on map" alone is ambiguous in a list of flights —
+    // and findable at all only because it sits outside the row's accessible
+    // grouping, which would otherwise swallow it.
+    await fireEvent.press(screen.getByLabelText('Show SWR123 on the map'));
+
+    expect(onShowOnMap).toHaveBeenCalledWith('4b1815');
+    expect(onPress).not.toHaveBeenCalled();
   });
 
   it('includes the age in the spoken label too, not just on screen', async () => {
