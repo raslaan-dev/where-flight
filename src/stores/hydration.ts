@@ -6,7 +6,6 @@ import { useBudgetStore } from './budget-store';
 import { useCredentialsStore } from './credentials-store';
 import { useFollowedStore } from './followed-store';
 import { useMapStore } from './map-store';
-import { useSearchStore } from './search-store';
 import { useSettingsStore } from './settings-store';
 
 /**
@@ -25,7 +24,6 @@ const PERSISTED = [
   useFollowedStore,
   useMapStore,
   useAirportsStore,
-  useSearchStore,
 ] as const;
 
 function whenRehydrated(store: (typeof PERSISTED)[number]): Promise<void> {

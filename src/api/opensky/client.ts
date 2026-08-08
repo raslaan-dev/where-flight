@@ -194,6 +194,47 @@ export async function fetchTrack(icao24: string, context: ClientContext): Promis
   return mapTrackResponse(payload);
 }
 
+/**
+ * Fetches the recent flight legs flown by one aircraft.
+ *
+ * This is where a route comes from: `/states/all` broadcasts a position and a
+ * callsign but never an origin or a destination. Priced on the same day-span
+ * table as the airport boards.
+ *
+ * A leg still in the air usually has a departure airport and a null arrival
+ * one, because OpenSky only attributes the arrival once the aircraft has
+ * landed and been processed. That is a real answer — "departed Heathrow, still
+ * flying" — so it is returned rather than discarded.
+ */
+export async function fetchAircraftFlights(
+  icao24: string,
+  beginUnix: number,
+  endUnix: number,
+  context: ClientContext
+): Promise<AirportFlight[]> {
+  const cost = flightsRequestCost(beginUnix, endUnix);
+  assertCanSpend(cost, context);
+
+  const query =
+    `?icao24=${encodeURIComponent(icao24.toLowerCase())}` +
+    `&begin=${Math.floor(beginUnix)}&end=${Math.floor(endUnix)}`;
+
+  let payload: unknown;
+  try {
+    payload = await requestJson(`/flights/aircraft${query}`, context);
+  } catch (error) {
+    // As with the boards, 404 means "nothing in that window", not a failure.
+    if (error instanceof ApiError && error.status === 404) {
+      context.onCreditsSpent?.(cost);
+      return [];
+    }
+    throw error;
+  }
+  context.onCreditsSpent?.(cost);
+
+  return mapFlightsResponse(payload);
+}
+
 export type ScheduleDirection = 'arrival' | 'departure';
 
 /**

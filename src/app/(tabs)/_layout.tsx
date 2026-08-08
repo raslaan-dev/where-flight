@@ -8,7 +8,7 @@ type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
 const TABS: { name: string; title: string; icon: IconName }[] = [
   { name: 'index', title: 'Map', icon: 'map-outline' },
-  { name: 'live', title: 'Live', icon: 'radar' },
+  { name: 'search', title: 'Search', icon: 'magnify' },
   { name: 'track', title: 'Track', icon: 'bookmark-outline' },
   { name: 'airports', title: 'Airports', icon: 'airport' },
   { name: 'settings', title: 'Settings', icon: 'cog-outline' },

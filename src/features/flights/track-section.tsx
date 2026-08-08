@@ -5,12 +5,14 @@ import { ERROR_COPY } from '@/api/opensky/errors';
 import { Button } from '@/components/ui/button';
 import { Section } from '@/components/ui/section';
 import { Text } from '@/components/ui/text';
+import { cachedRoute, routeFetchCost, useRouteStore } from '@/stores/route-store';
 import { cachedTrack, useTrackStore } from '@/stores/track-store';
 import { useCredentialsStore } from '@/stores/credentials-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { space, useTheme } from '@/theme';
 
 import { AltitudeRibbon } from './altitude-ribbon';
+import { RouteLine } from './route-line';
 
 /**
  * The flight-path section of the detail screen.
@@ -31,12 +33,23 @@ export function TrackSection({ icao24 }: { icao24: string }) {
   const errorKind = useTrackStore((state) => state.errorKind);
   const activeIcao24 = useTrackStore((state) => state.activeIcao24);
   const load = useTrackStore((state) => state.load);
+  const route = useRouteStore((state) => cachedRoute(state, icao24));
+  const loadRoute = useRouteStore((state) => state.load);
 
   // The store is shared; only reflect the status if it is about this aircraft.
   const mine = activeIcao24 === icao24.toLowerCase();
 
   return (
-    <Section title="Flight path">
+    <Section title="Route and flight path">
+      {/* The route is the headline answer — where from, where to — so it sits
+          above the altitude chart rather than under it. */}
+      {route !== undefined ? (
+        <RouteLine
+          route={route}
+          emptyLabel="OpenSky has no completed leg for this aircraft in the last 12 hours, so its route is unknown."
+        />
+      ) : null}
+
       {track ? (
         <AltitudeRibbon track={track} units={units} />
       ) : !connected ? (
@@ -66,10 +79,13 @@ export function TrackSection({ icao24 }: { icao24: string }) {
             </Text>
           )}
           <Button
-            label={mine && errorKind !== null ? 'Try again' : 'Load flight path'}
+            label={mine && errorKind !== null ? 'Try again' : 'Load route and path'}
             variant="secondary"
-            onPress={() => void load(icao24)}
-            accessibilityHint={`Uses about ${TRACK_REQUEST_COST} of today's API credits`}
+            onPress={() => {
+              void loadRoute(icao24);
+              void load(icao24);
+            }}
+            accessibilityHint={`Uses about ${TRACK_REQUEST_COST + routeFetchCost()} of today's API credits`}
           />
         </>
       )}

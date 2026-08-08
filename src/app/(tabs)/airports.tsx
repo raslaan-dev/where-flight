@@ -251,7 +251,7 @@ function BoardBody({
     return (
       <EmptyState
         title={`No ${direction === 'arrival' ? 'arrivals' : 'departures'} found`}
-        body="OpenSky saw no matching flights in the window. Quiet hours at smaller airports genuinely look like this."
+        body="OpenSky derives these from flights it has already processed, which lags real time by hours — so a quiet result here can mean the data has not caught up rather than that nothing flew. Smaller airports are often genuinely empty."
         actionLabel={online ? fetchLabel : undefined}
         onAction={online ? onLoad : undefined}
       />

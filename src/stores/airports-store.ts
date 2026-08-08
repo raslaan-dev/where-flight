@@ -19,8 +19,18 @@ import { userActionContext } from './client-context';
  * the tab worth opening twice.
  */
 
-/** How far back a board looks. Kept at 2h: the next tier up costs 2.5× more. */
-export const SCHEDULE_WINDOW_SECONDS = 2 * 3600;
+/**
+ * How far back a board looks.
+ *
+ * This was 2h to keep the request in the 8-credit tier, and that made the tab
+ * look broken: OpenSky derives arrivals from flights that have *landed and
+ * been processed*, which lags real time by hours. Probing the live API, a 2h
+ * arrivals window at Heathrow, Frankfurt and Schiphol returned 404 — no data —
+ * every time, while departures over the same window returned rows. A day-long
+ * window is the shortest one that reliably answers for both directions. It
+ * costs 20 credits instead of 8, which the button states before spending.
+ */
+export const SCHEDULE_WINDOW_SECONDS = 24 * 3600;
 
 /** Boards older than this are shown, but flagged and refetchable. */
 export const SCHEDULE_TTL_MS = 15 * 60_000;

@@ -43,6 +43,16 @@ export type MapState = {
    */
   listMode: boolean;
 
+  /**
+   * A pending "show me this aircraft on the map" request, set by another tab.
+   * The map screen consumes it once it is ready and clears it — a plain
+   * `selectedIcao24` would highlight the aircraft without moving the camera,
+   * which is useless if it is off screen.
+   */
+  focus: { icao24: string; centre: LatLon } | null;
+
+  requestFocus: (icao24: string, centre: LatLon | null) => void;
+  clearFocus: () => void;
   setCamera: (centre: LatLon, zoom: number) => void;
   setStyleId: (styleId: MapStyleId) => void;
   setReady: (isReady: boolean) => void;
@@ -61,12 +71,25 @@ const INITIAL = {
   mapKey: 0,
   selectedIcao24: null,
   listMode: false,
+  focus: null,
 };
 
 export const useMapStore = create<MapState>()(
   persist(
     (set) => ({
       ...INITIAL,
+
+      focus: null,
+
+      // Selecting here too means the highlight is already correct on the frame
+      // the map appears, rather than one frame later.
+      requestFocus: (icao24, centre) =>
+        set((state) => ({
+          selectedIcao24: icao24,
+          focus: centre ? { icao24, centre } : null,
+          centre: centre ?? state.centre,
+        })),
+      clearFocus: () => set({ focus: null }),
 
       setCamera: (centre, zoom) => set({ centre, zoom }),
       setStyleId: (styleId) => set({ styleId }),

@@ -4,18 +4,22 @@ import { TRACK_REQUEST_COST } from '@/api/opensky/costs';
 import { ERROR_COPY } from '@/api/opensky/errors';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { RouteLine } from '@/features/flights/route-line';
 import { useCredentialsStore } from '@/stores/credentials-store';
+import { cachedRoute, routeFetchCost, useRouteStore } from '@/stores/route-store';
 import { cachedTrack, useTrackStore } from '@/stores/track-store';
 import { space, useTheme } from '@/theme';
 
 /**
- * The one line under the map's selection card that explains its trail.
+ * The route and trail line under the map's selection card.
  *
- * The map always draws *something* behind a selected aircraft, but the two
- * possible somethings mean different things, and conflating them would be a
- * lie: the free trail starts when you opened the app, the fetched one starts
- * at the runway. So the copy always says which is on screen, and the upgrade
- * states its price before spending anything.
+ * One tap buys both halves of the same question — where has this flight been,
+ * and where is it going — so they are fetched together and priced together.
+ *
+ * The explanatory copy only appears when it can still change something. With
+ * an account connected there is a button to press, so the card shows the route
+ * or the button and nothing else; the paragraph about connecting an account is
+ * only there for people who have not.
  */
 
 export function TrailControl({ icao24 }: { icao24: string }) {
@@ -23,29 +27,58 @@ export function TrailControl({ icao24 }: { icao24: string }) {
   const connected = useCredentialsStore((state) => state.credentials !== null);
 
   const track = useTrackStore((state) => cachedTrack(state, icao24));
-  const status = useTrackStore((state) => state.status);
-  const errorKind = useTrackStore((state) => state.errorKind);
-  const activeIcao24 = useTrackStore((state) => state.activeIcao24);
-  const load = useTrackStore((state) => state.load);
+  const trackStatus = useTrackStore((state) => state.status);
+  const trackError = useTrackStore((state) => state.errorKind);
+  const trackActive = useTrackStore((state) => state.activeIcao24);
+  const loadTrack = useTrackStore((state) => state.load);
 
-  // The store is shared between screens; only reflect status for this aircraft.
-  const mine = activeIcao24 === icao24.toLowerCase();
+  const route = useRouteStore((state) => cachedRoute(state, icao24));
+  const routeStatus = useRouteStore((state) => state.status);
+  const routeActive = useRouteStore((state) => state.activeIcao24);
+  const loadRoute = useRouteStore((state) => state.load);
 
-  if (track) {
+  // The stores are shared between screens; only reflect status for this one.
+  const key = icao24.toLowerCase();
+  const mine = trackActive === key || routeActive === key;
+  const loading =
+    mine && (trackStatus === 'loading' || routeStatus === 'loading');
+  const fetched = track !== null || route !== undefined;
+  const cost = TRACK_REQUEST_COST + routeFetchCost();
+
+  const load = () => {
+    void loadRoute(icao24);
+    void loadTrack(icao24);
+  };
+
+  if (loading) {
     return (
-      <Text variant="caption" tone="muted">
-        Trail shows the full flown path. The ringed end is where it took off.
-      </Text>
+      <View
+        style={styles.row}
+        accessible
+        accessibilityRole="progressbar"
+        accessibilityLabel="Loading route and flight path">
+        <ActivityIndicator color={colors.accent} />
+        <Text variant="caption" tone="muted">
+          Loading route and flight path…
+        </Text>
+      </View>
     );
   }
 
-  if (mine && status === 'loading') {
+  if (fetched) {
     return (
-      <View style={styles.row} accessible accessibilityRole="progressbar" accessibilityLabel="Loading flight path">
-        <ActivityIndicator color={colors.accent} />
-        <Text variant="caption" tone="muted">
-          Loading flight path…
-        </Text>
+      <View style={styles.stack}>
+        {route !== undefined ? (
+          <RouteLine
+            route={route}
+            emptyLabel="OpenSky has no completed leg for this aircraft in the last 12 hours."
+          />
+        ) : null}
+        {track ? (
+          <Text variant="caption" tone="muted">
+            The ringed end of the trail is where it took off.
+          </Text>
+        ) : null}
       </View>
     );
   }
@@ -54,23 +87,23 @@ export function TrailControl({ icao24 }: { icao24: string }) {
     return (
       <Text variant="caption" tone="muted">
         Trail shows where this flight has been since you opened the app. Connect an
-        OpenSky account in Settings for the full path back to take-off.
+        OpenSky account in Settings for its route and full path back to take-off.
       </Text>
     );
   }
 
   return (
     <View style={styles.stack}>
-      <Text variant="caption" tone="muted">
-        {mine && errorKind
-          ? ERROR_COPY[errorKind].body
-          : 'Trail starts when you opened the app. Fetch the full path to see where this flight took off.'}
-      </Text>
+      {mine && trackError ? (
+        <Text variant="caption" tone="muted">
+          {ERROR_COPY[trackError].body}
+        </Text>
+      ) : null}
       <Button
-        label={mine && errorKind ? 'Try again' : 'Show full path'}
+        label={mine && trackError ? 'Try again' : 'Show route and path'}
         variant="secondary"
-        onPress={() => void load(icao24)}
-        accessibilityHint={`Fetches the flown path back to take-off. Costs about ${TRACK_REQUEST_COST} credits.`}
+        onPress={load}
+        accessibilityHint={`Fetches where this flight departed, where it is heading, and its flown path. Costs about ${cost} credits.`}
       />
     </View>
   );

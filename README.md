@@ -16,9 +16,9 @@ Applications.
 
 ## Screenshots
 
-| Map | Live list | Flight detail |
+| Map | Search list | Flight detail |
 |---|---|---|
-| ![Map](docs/screenshots/map.png) | ![Live](docs/screenshots/live.png) | ![Detail](docs/screenshots/detail.png) |
+| ![Map](docs/screenshots/map.png) | ![Search](docs/screenshots/search.png) | ![Detail](docs/screenshots/detail.png) |
 
 | Airports | Track (offline) | Settings |
 |---|---|---|
@@ -41,7 +41,7 @@ Checks:
 
 ```bash
 npx tsc --noEmit   # types
-npm test           # 29 suites, 444 tests
+npm test           # 30 suites, 450 tests
 npx expo-doctor    # project health
 ```
 
@@ -64,18 +64,19 @@ Nothing here uses an SDK 55+ API, so the ceiling costs the project nothing.
   full path is fetched — the real trajectory with its take-off point ringed.
   A **List view** toggle swaps it for the same data as a list; with a screen
   reader running, list view is the default.
-- **Live** — the same traffic as an accessible list: one spoken sentence per
-  aircraft, pull-to-refresh, honest loading/error/empty states.
-- **Flight detail** — full telemetry, track/untrack, and (with an account)
-  the flight's altitude profile drawn from `/tracks` with a spoken summary.
-- **Track** — tracked flights persist with their full last-known telemetry,
-  so the tab works completely offline with "last seen 14 minutes ago"
-  timestamps.
+- **Search** — the same traffic as an accessible list: one spoken sentence per
+  aircraft, pull-to-refresh, honest loading/error/empty states. The box at the
+  top searches live aircraft, tracked flights and the airport directory — all
+  already on the device, so it costs nothing and works offline.
+- **Flight detail** — full telemetry, track/untrack, and (with an account) the
+  flight's **route** (`LHR → DXB`) and altitude profile, drawn from
+  `/flights/aircraft` and `/tracks` with a spoken summary.
+- **Track** — tracked flights persist with their full last-known telemetry, so
+  the tab works completely offline with "last seen 14 minutes ago" timestamps.
+  Tapping one opens the map centred on it rather than a detail screen.
 - **Airports** — arrivals and departures for ~40 bundled airports. These are
   OpenSky's most expensive calls, so nothing loads until a button showing the
   credit price is pressed; fetched boards are cached to disk.
-- **Search** — one box over live aircraft, tracked flights and the airport
-  directory. Costs nothing; works offline; remembers recent queries.
 - **Settings** — theme (incl. two high-contrast palettes), units, motion,
   on-ground filter, haptics, an OpenSky account connection, and a budget
   meter that receipts every API request.
@@ -86,7 +87,7 @@ Nothing here uses an SDK 55+ API, so the ceiling costs the project nothing.
 src/
   api/opensky/      token manager, HTTP client, mappers, credit costs, errors
   app/              expo-router file-based routes
-    (tabs)/         map · live · track · airports · settings
+    (tabs)/         map · search · track · airports · settings
     flight/[icao24] telemetry + altitude ribbon
     search          modal over everything the app knows
   components/       themed UI kit (Button, Banner, states, ErrorBoundary…)
@@ -128,7 +129,15 @@ WebView crash degrades one component instead of the app.
 |---|---|---|
 | `/states/all` (viewport) | 1–4 by area | polled automatically, adaptive interval |
 | `/tracks/all` (flight path) | 4 | button, price shown, account required |
-| `/flights/arrival`/`departure` | 8 for the 2 h window | button, price shown, board cached |
+| `/flights/aircraft` (route) | 8 for the 12 h window | fetched with the path, one priced tap |
+| `/flights/arrival`/`departure` | 20 for the 24 h window | button, price shown, board cached |
+
+The airport boards use a **day-long** window, not the cheaper 2-hour one. That
+is not generosity: OpenSky derives arrivals from flights that have already
+landed *and been processed*, which lags real time by hours. Probing the live
+API, a 2-hour arrivals window at Heathrow, Frankfurt and Schiphol returned no
+data every time, while departures over the same window returned rows. A short
+window made the tab look broken.
 
 Spend is tracked in a persisted ledger keyed to the UTC day (OpenSky's reset
 boundary), reconciled against the server's `X-Rate-Limit-Remaining` header

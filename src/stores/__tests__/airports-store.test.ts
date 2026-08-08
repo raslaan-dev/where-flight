@@ -52,8 +52,10 @@ describe('load', () => {
     expect(board?.flights).toHaveLength(1);
     expect(board?.airportIcao).toBe('LSZH');
     expect(urlOf(fetchMock, 0)).toContain('/flights/arrival?airport=LSZH');
-    // A 2h window costs 8 credits by OpenSky's day-span table.
-    expect(useBudgetStore.getState().used).toBe(8);
+    // A day-long window costs 20 credits by OpenSky's day-span table. Shorter
+    // windows are cheaper but return no arrivals at all — see the note on
+    // SCHEDULE_WINDOW_SECONDS.
+    expect(useBudgetStore.getState().used).toBe(20);
   });
 
   it('treats a 404 as an empty board, not an error', async () => {

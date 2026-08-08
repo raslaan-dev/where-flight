@@ -10,6 +10,7 @@ import { Text } from '@/components/ui/text';
 import { FollowedListItem } from '@/features/flights/followed-list-item';
 import { useNow } from '@/lib/use-now';
 import { ageSecondsOf, useFollowedStore, type FollowedFlight } from '@/stores/followed-store';
+import { useMapStore } from '@/stores/map-store';
 import { isOnline, useNetworkStore } from '@/stores/network-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { space } from '@/theme';
@@ -27,6 +28,7 @@ export default function TrackScreen() {
   const unfollow = useFollowedStore((state) => state.unfollow);
   const units = useSettingsStore((state) => state.units);
   const online = useNetworkStore(isOnline);
+  const requestFocus = useMapStore((state) => state.requestFocus);
 
   // One ticking clock for the whole list: without it "last seen 4 minutes ago"
   // would stay frozen at whatever it read when the screen first mounted.
@@ -36,7 +38,21 @@ export default function TrackScreen() {
     [flights, now]
   );
 
-  const onPress = useCallback((icao24: string) => router.push(`/flight/${icao24}`), [router]);
+  // Tapping a tracked flight goes to the map with it highlighted, not straight
+  // to the detail screen — seeing where it is is the reason to track it. The
+  // card on the map is one tap from the full details.
+  const onPress = useCallback(
+    (icao24: string) => {
+      const flight = flights.find((item) => item.icao24 === icao24);
+      const { latitude, longitude } = flight?.lastSeen ?? {};
+      requestFocus(
+        icao24,
+        latitude != null && longitude != null ? { latitude, longitude } : null
+      );
+      router.navigate('/');
+    },
+    [flights, requestFocus, router]
+  );
 
   const renderItem = useCallback(
     ({ item }: { item: FollowedFlight }) => (
@@ -77,7 +93,7 @@ export default function TrackScreen() {
           title="Nothing tracked yet"
           body="Tap an aircraft on the Map and choose Track, or open one from the Live tab. Tracked flights keep their last known position, so they still work with no connection."
           actionLabel="Go to Live"
-          onAction={() => router.push('/live')}
+          onAction={() => router.push('/search')}
         />
       ) : (
         <FlashList

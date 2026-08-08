@@ -42,6 +42,9 @@ import { space, useTheme } from '@/theme';
 /** Loud enough to be useful, quiet enough not to interrupt constantly. */
 const ANNOUNCE_INTERVAL_MS = 20_000;
 
+/** Close enough to read the aircraft and its trail, not so close it is lost. */
+const FOCUS_ZOOM = 8;
+
 export default function MapScreen() {
   const { colors, screenReader } = useTheme();
   const router = useRouter();
@@ -60,6 +63,9 @@ export default function MapScreen() {
   const degraded = useMapStore((state) => state.degraded);
   const listMode = useMapStore((state) => state.listMode);
   const setListMode = useMapStore((state) => state.setListMode);
+  const isReady = useMapStore((state) => state.isReady);
+  const focus = useMapStore((state) => state.focus);
+  const clearFocus = useMapStore((state) => state.clearFocus);
 
   const followed = useFollowedStore((state) => state.flights);
   const showOnGround = useSettingsStore((state) => state.showOnGround);
@@ -110,6 +116,14 @@ export default function MapScreen() {
   }, [router, selectedIcao24]);
 
   const send = useCallback((script: string) => mapRef.current?.send(script), []);
+
+  // Another tab asked for a specific aircraft. Consumed once and cleared, so
+  // returning to the map later does not yank the camera back.
+  useEffect(() => {
+    if (focus === null || !isReady) return;
+    send(inject.flyTo(focus.centre.latitude, focus.centre.longitude, FOCUS_ZOOM));
+    clearFocus();
+  }, [focus, isReady, send, clearFocus]);
   const recentre = useCallback(() => {
     const { latitude, longitude } = DEFAULT_REGION.centre;
     send(inject.flyTo(latitude, longitude, DEFAULT_ZOOM));
