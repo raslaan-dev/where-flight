@@ -5,7 +5,9 @@ import type { WebViewMessageEvent } from 'react-native-webview';
 import type { Aircraft } from '@/api/opensky/types';
 import { clampBbox, type Bbox, type LatLon } from '@/lib/geo';
 import { hapticSelect } from '@/lib/haptics';
+import { useAircraftStore } from '@/stores/aircraft-store';
 import { useMapStore } from '@/stores/map-store';
+import { cachedTrack, useTrackStore } from '@/stores/track-store';
 
 import {
   buildFeatures,
@@ -15,6 +17,7 @@ import {
   type FeatureSet,
 } from './diff';
 import { inject, parseOutbound } from './protocol';
+import { buildTrail } from './trail';
 
 /**
  * Keeps the WebView's copy of the world in step with the store.
@@ -50,6 +53,10 @@ export function useMapBridge({
   const mapKey = useMapStore((state) => state.mapKey);
   const centre = useMapStore((state) => state.centre);
   const selectedIcao24 = useMapStore((state) => state.selectedIcao24);
+  const trails = useAircraftStore((state) => state.trails);
+  const selectedTrack = useTrackStore((state) =>
+    selectedIcao24 === null ? null : cachedTrack(state, selectedIcao24)
+  );
 
   const send = useCallback((script: string) => {
     webviewRef.current?.injectJavaScript(script);
@@ -84,6 +91,22 @@ export function useMapBridge({
   useEffect(() => {
     if (isReady) send(inject.select(selectedIcao24));
   }, [selectedIcao24, isReady, send]);
+
+  // The trail follows the selection, and upgrades itself the moment a real
+  // track lands in the store — which is why it watches the cache rather than
+  // being pushed once at selection time.
+  useEffect(() => {
+    if (!isReady) return;
+    if (selectedIcao24 === null) {
+      send(inject.setTrail(null));
+      return;
+    }
+    send(
+      inject.setTrail(
+        buildTrail({ track: selectedTrack, observed: trails[selectedIcao24] })
+      )
+    );
+  }, [selectedIcao24, selectedTrack, trails, isReady, send]);
 
   useEffect(() => {
     if (isReady) send(inject.setMotion(motion));

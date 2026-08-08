@@ -16,6 +16,7 @@ import { FlightMap, type FlightMapHandle } from '@/features/map/flight-map';
 import { MapControls } from '@/features/map/map-controls';
 import { OfflineRadar } from '@/features/map/offline-radar';
 import { inject } from '@/features/map/protocol';
+import { TrailControl } from '@/features/map/trail-control';
 import { useViewportBbox } from '@/features/map/use-viewport-bbox';
 import { formatRelativeTime } from '@/lib/format';
 import { DEFAULT_REGION } from '@/lib/regions';
@@ -215,6 +216,7 @@ export default function MapScreen() {
                   selected
                   onPress={openSelected}
                 />
+                <TrailControl icao24={selected.icao24} />
                 <Button
                   label="Clear selection"
                   variant="ghost"

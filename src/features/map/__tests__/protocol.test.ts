@@ -70,4 +70,22 @@ describe('inject', () => {
   it('passes a null selection through as null, not as the string undefined', () => {
     expect(inject.select(null)).toContain('select(null)');
   });
+
+  it('sends a trail as a serialised path and source', () => {
+    const script = inject.setTrail({
+      path: [
+        [-0.45, 51.47],
+        [-1.2, 52],
+      ],
+      source: 'track',
+    });
+
+    expect(script).toContain('setTrail(');
+    expect(script).toContain('[[-0.45,51.47],[-1.2,52]]');
+    expect(script).toContain('"source":"track"');
+  });
+
+  it('clears the trail with an explicit null', () => {
+    expect(inject.setTrail(null)).toContain('setTrail(null)');
+  });
 });

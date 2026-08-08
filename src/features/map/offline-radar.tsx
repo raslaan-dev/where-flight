@@ -42,7 +42,7 @@ export function OfflineRadar({ aircraft, bbox, selectedIcao24, reason }: Offline
     const spanLon = Math.max(1e-6, bbox.lomax - bbox.lomin);
     const spanLat = Math.max(1e-6, bbox.lamax - bbox.lamin);
 
-    return aircraft.flatMap((item) => {
+    const points = aircraft.flatMap((item) => {
       if (item.latitude === null || item.longitude === null) return [];
       return [
         {
@@ -57,6 +57,9 @@ export function OfflineRadar({ aircraft, bbox, selectedIcao24, reason }: Offline
         },
       ];
     });
+    // Drawn last means drawn on top: otherwise the selection can sit under a
+    // neighbour in a crowded corner.
+    return points.sort((a, b) => Number(a.selected) - Number(b.selected));
   }, [aircraft, bbox, size, colors, selectedIcao24]);
 
   return (
@@ -91,15 +94,19 @@ export function OfflineRadar({ aircraft, bbox, selectedIcao24, reason }: Offline
             />
           </G>
         ))}
+        {/* Selection recolours and enlarges the aircraft itself rather than
+            ringing it, matching the map. Size carries the state as well as
+            colour, so it survives without colour vision. */}
         {plotted.map((item) =>
           item.hasHeading ? (
-            <G key={item.key} transform={`translate(${item.x} ${item.y}) rotate(${item.rotation})`}>
-              {item.selected ? (
-                <Circle r={12} fill="none" stroke={colors.accent} strokeWidth={2} />
-              ) : null}
+            <G
+              key={item.key}
+              transform={`translate(${item.x} ${item.y}) rotate(${item.rotation})${
+                item.selected ? ' scale(1.4)' : ''
+              }`}>
               <Path
                 d={MARKER}
-                fill={item.colour}
+                fill={item.selected ? colors.accent : item.colour}
                 stroke={colors.bgSunken}
                 strokeWidth={1}
                 strokeLinejoin="round"
@@ -107,10 +114,12 @@ export function OfflineRadar({ aircraft, bbox, selectedIcao24, reason }: Offline
             </G>
           ) : (
             <G key={item.key} transform={`translate(${item.x} ${item.y})`}>
-              {item.selected ? (
-                <Circle r={12} fill="none" stroke={colors.accent} strokeWidth={2} />
-              ) : null}
-              <Circle r={4} fill={item.colour} stroke={colors.bgSunken} strokeWidth={1} />
+              <Circle
+                r={item.selected ? 6 : 4}
+                fill={item.selected ? colors.accent : item.colour}
+                stroke={colors.bgSunken}
+                strokeWidth={1}
+              />
             </G>
           )
         )}

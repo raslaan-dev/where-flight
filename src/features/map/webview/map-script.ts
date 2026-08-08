@@ -97,12 +97,18 @@ const PAGE_SCRIPT = /* js */ `
 (function () {
   var config = window.__wfConfig;
   var SOURCE = 'aircraft';
+  var TRAIL_SOURCE = 'trail';
+  var ORIGIN_SOURCE = 'trail-origin';
   var FLAG_ON_GROUND = 1;
   var FLAG_EMERGENCY = 2;
+  /** A filter matching no feature, used before anything is selected. */
+  var NOTHING = ['==', ['get', 'id'], '\\u0000'];
 
   /** id -> positional tuple, mirroring the native side's FeatureSet. */
   var features = new Map();
   var selectedId = null;
+  /** Held so a style reload or remount can redraw it, as with the features. */
+  var lastTrail = null;
   var motion = config.motion;
   var map = null;
   var ready = false;
@@ -178,6 +184,11 @@ const PAGE_SCRIPT = /* js */ `
     addIcon('plane-unknown', config.unknown, 'plane');
     addIcon('circle-unknown', config.unknown, 'circle');
     addIcon('ground', config.unknown, 'ground');
+    // The selection recolours the aircraft itself rather than ringing it, so
+    // each shape needs an accent-coloured twin to swap in.
+    addIcon('plane-selected', config.selected, 'plane');
+    addIcon('circle-selected', config.selected, 'circle');
+    addIcon('ground-selected', config.selected, 'ground');
   }
 
   /** Expression picking the pre-coloured icon for a feature's band and state. */
@@ -188,6 +199,16 @@ const PAGE_SCRIPT = /* js */ `
     }
     match.push(['case', ['==', ['get', 'track'], -1], 'circle-unknown', 'plane-unknown']);
     return ['case', ['==', ['%', ['get', 'flags'], 2], 1], 'ground', match];
+  }
+
+  /** The same shape choice as iconExpression, in the selected colour. */
+  function selectedIconExpression() {
+    return [
+      'case',
+      ['==', ['%', ['get', 'flags'], 2], 1], 'ground-selected',
+      ['==', ['get', 'track'], -1], 'circle-selected',
+      'plane-selected',
+    ];
   }
 
   function colourExpression() {
@@ -209,6 +230,46 @@ const PAGE_SCRIPT = /* js */ `
     return { type: 'FeatureCollection', features: list };
   }
 
+  function emptyCollection() {
+    return { type: 'FeatureCollection', features: [] };
+  }
+
+  /**
+   * Draws the line behind the selected aircraft, and marks its start only when
+   * that start is a real departure point rather than the first position this
+   * app happened to see.
+   */
+  function applyTrail(trail) {
+    var trailSource = map && map.getSource(TRAIL_SOURCE);
+    var originSource = map && map.getSource(ORIGIN_SOURCE);
+    if (!trailSource || !originSource) return;
+
+    var path = trail && trail.path ? trail.path : [];
+    if (path.length < 2) {
+      trailSource.setData(emptyCollection());
+      originSource.setData(emptyCollection());
+      return;
+    }
+
+    trailSource.setData({
+      type: 'FeatureCollection',
+      features: [{
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: path },
+        properties: {},
+      }],
+    });
+
+    originSource.setData(trail.source === 'track' ? {
+      type: 'FeatureCollection',
+      features: [{
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: path[0] },
+        properties: {},
+      }],
+    } : emptyCollection());
+  }
+
   function flush() {
     pendingFlush = false;
     lastFlushAt = Date.now();
@@ -226,18 +287,33 @@ const PAGE_SCRIPT = /* js */ `
 
   function addLayers() {
     map.addSource(SOURCE, { type: 'geojson', data: collection() });
+    map.addSource(TRAIL_SOURCE, { type: 'geojson', data: emptyCollection() });
+    map.addSource(ORIGIN_SOURCE, { type: 'geojson', data: emptyCollection() });
 
-    // A halo under the selection, so the choice survives a crowded view.
+    // Trail first, so it runs under every aircraft rather than over them.
     map.addLayer({
-      id: 'aircraft-selected',
-      type: 'circle',
-      source: SOURCE,
-      filter: ['==', ['get', 'id'], ''],
+      id: 'trail-line',
+      type: 'line',
+      source: TRAIL_SOURCE,
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
       paint: {
-        'circle-radius': 16,
-        'circle-color': config.selected,
-        'circle-opacity': 0.25,
-        'circle-stroke-width': 2,
+        'line-color': config.selected,
+        'line-width': ['interpolate', ['linear'], ['zoom'], 5, 1.5, 11, 3],
+        'line-opacity': 0.85,
+      },
+    });
+
+    // Where the flight began. Only ever populated from a fetched track, so a
+    // marker here always means a real departure point, never "where I started
+    // watching".
+    map.addLayer({
+      id: 'trail-origin',
+      type: 'circle',
+      source: ORIGIN_SOURCE,
+      paint: {
+        'circle-radius': 5,
+        'circle-color': config.background,
+        'circle-stroke-width': 2.5,
         'circle-stroke-color': config.selected,
       },
     });
@@ -286,11 +362,54 @@ const PAGE_SCRIPT = /* js */ `
         'icon-size': ['interpolate', ['linear'], ['zoom'], 6, 0.6, 11, 1],
       },
     });
+
+    // The selected aircraft is drawn by its own pair of layers, added last so
+    // it sits above the traffic around it. The base layers exclude it, so it is
+    // never drawn twice.
+    map.addLayer({
+      id: 'aircraft-selected-dot',
+      type: 'circle',
+      source: SOURCE,
+      maxzoom: 6,
+      filter: NOTHING,
+      paint: {
+        'circle-radius': 6,
+        'circle-color': config.selected,
+        'circle-stroke-width': 1.5,
+        'circle-stroke-color': config.outline,
+      },
+    });
+
+    map.addLayer({
+      id: 'aircraft-selected-symbol',
+      type: 'symbol',
+      source: SOURCE,
+      minzoom: 6,
+      filter: NOTHING,
+      layout: {
+        'icon-image': selectedIconExpression(),
+        'icon-rotate': ['case', ['==', ['get', 'track'], -1], 0, ['get', 'track']],
+        'icon-rotation-alignment': 'map',
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true,
+        // Larger as well as recoloured: size is a second channel, so the
+        // selection is still findable without colour vision.
+        'icon-size': ['interpolate', ['linear'], ['zoom'], 6, 0.85, 11, 1.4],
+      },
+    });
   }
 
   function applySelection() {
-    if (!map || !map.getLayer('aircraft-selected')) return;
-    map.setFilter('aircraft-selected', ['==', ['get', 'id'], selectedId || '']);
+    if (!map || !map.getLayer('aircraft-selected-symbol')) return;
+    var id = selectedId || '';
+    var isSelected = ['==', ['get', 'id'], id];
+    var isNotSelected = ['!=', ['get', 'id'], id];
+    // With no selection, id is '' — which matches no real aircraft, so the base
+    // layers show everything and the selected layers show nothing.
+    map.setFilter('aircraft-selected-dot', isSelected);
+    map.setFilter('aircraft-selected-symbol', isSelected);
+    map.setFilter('aircraft-dots', isNotSelected);
+    map.setFilter('aircraft-symbols', isNotSelected);
   }
 
   function reportViewport() {
@@ -321,9 +440,16 @@ const PAGE_SCRIPT = /* js */ `
       for (i = 0; i < delta.d.length; i++) features.delete(delta.d[i]);
       scheduleFlush();
     },
+    setTrail: function (trail) {
+      lastTrail = trail;
+      applyTrail(trail);
+    },
     select: function (id) {
       selectedId = id;
       applySelection();
+      // Clearing the selection clears its line; the native side pushes the new
+      // one straight after when the selection merely changed.
+      if (!id) applyTrail(null);
       var feature = id ? features.get(id) : null;
       if (feature) {
         map.easeTo({ center: [feature[1], feature[2]], duration: motion ? 500 : 0 });
@@ -369,6 +495,7 @@ const PAGE_SCRIPT = /* js */ `
       addIcons();
       addLayers();
       applySelection();
+      applyTrail(lastTrail);
       ready = true;
       flush();
       __wfPost({ type: 'ready' });
@@ -377,7 +504,15 @@ const PAGE_SCRIPT = /* js */ `
 
     map.on('moveend', reportViewport);
 
-    ['aircraft-symbols', 'aircraft-dots'].forEach(function (layer) {
+    // The selected layers are included: the base layers filter the selection
+    // out, so without them a tap on the selected aircraft would miss every
+    // handler and fall through to "tapped empty map", deselecting it.
+    [
+      'aircraft-symbols',
+      'aircraft-dots',
+      'aircraft-selected-symbol',
+      'aircraft-selected-dot',
+    ].forEach(function (layer) {
       map.on('click', layer, function (event) {
         var id = idOf(event);
         if (id) {

@@ -3,6 +3,7 @@ import { fetchStates } from '@/api/opensky/client';
 import { ApiError, isApiError, type ApiErrorKind } from '@/api/opensky/errors';
 import type { Aircraft, AircraftSnapshot } from '@/api/opensky/types';
 import { bboxEquals, type Bbox } from '@/lib/geo';
+import { appendObserved, type TrailPath } from '@/features/map/trail';
 import { pollableCredits, remainingCredits, useBudgetStore } from './budget-store';
 import { activeCredentials } from './credentials-store';
 import { useFollowedStore } from './followed-store';
@@ -33,6 +34,12 @@ export type AircraftState = {
   fromCache: boolean;
   /** False until the disk cache has been read, so the splash can wait for it. */
   hydrated: boolean;
+  /**
+   * icao24 → positions this session has watched go by, for the map trail.
+   * In memory only: a trail restored from disk would be a lie about a flight
+   * that has long since landed.
+   */
+  trails: Record<string, TrailPath>;
 
   setBbox: (bbox: Bbox) => void;
   /** Fetches the current bbox. `background` suppresses the loading spinner. */
@@ -47,6 +54,26 @@ export type AircraftState = {
 /** Guards against two overlapping fetches racing to set the snapshot. */
 let inFlight: Promise<void> | null = null;
 
+/**
+ * Extends every aircraft's observed trail with this snapshot's position, and
+ * forgets the ones that have left the viewport.
+ */
+function recordTrails(
+  trails: Record<string, TrailPath>,
+  snapshot: AircraftSnapshot
+): Record<string, TrailPath> {
+  const next: Record<string, TrailPath> = {};
+  for (const aircraft of snapshot.aircraft) {
+    if (aircraft.latitude === null || aircraft.longitude === null) continue;
+    next[aircraft.icao24] = appendObserved(
+      trails[aircraft.icao24],
+      aircraft.longitude,
+      aircraft.latitude
+    );
+  }
+  return next;
+}
+
 export const useAircraftStore = create<AircraftState>()((set, get) => ({
   snapshot: null,
   status: 'idle',
@@ -56,6 +83,7 @@ export const useAircraftStore = create<AircraftState>()((set, get) => ({
   retryAfter: null,
   fromCache: false,
   hydrated: false,
+  trails: {},
 
   setBbox: (bbox) => {
     if (bboxEquals(get().bbox, bbox)) return;
@@ -110,14 +138,15 @@ export const useAircraftStore = create<AircraftState>()((set, get) => ({
       onRemainingReported: budget.reconcileRemaining,
     })
       .then((next) => {
-        set({
+        set((state) => ({
           snapshot: next,
           status: 'ready',
           errorKind: null,
           lastLoadedAt: Date.now(),
           retryAfter: null,
           fromCache: false,
-        });
+          trails: recordTrails(state.trails, next),
+        }));
         // Followed flights carry their own copy of the telemetry so they still
         // render once this snapshot has been replaced or the app is offline.
         useFollowedStore.getState().syncFromSnapshot(next);
@@ -153,6 +182,7 @@ export function resetAircraftStore(): void {
     retryAfter: null,
     fromCache: false,
     hydrated: false,
+    trails: {},
   });
 }
 

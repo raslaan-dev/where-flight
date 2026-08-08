@@ -59,8 +59,11 @@ Nothing here uses an SDK 55+ API, so the ceiling costs the project nothing.
 - **Map** — live aircraft over the UK on a MapLibre vector map, rendered as a
   single GeoJSON layer (no per-plane DOM nodes), with rotation by heading,
   altitude-coloured markers, tap-to-select, and native zoom/recentre/reset
-  controls. A **List view** toggle swaps it for the same data as a list; with
-  a screen reader running, list view is the default.
+  controls. Selecting an aircraft recolours and enlarges the aircraft itself,
+  and draws its **trail**: free positions observed since launch, or — once the
+  full path is fetched — the real trajectory with its take-off point ringed.
+  A **List view** toggle swaps it for the same data as a list; with a screen
+  reader running, list view is the default.
 - **Live** — the same traffic as an accessible list: one spoken sentence per
   aircraft, pull-to-refresh, honest loading/error/empty states.
 - **Flight detail** — full telemetry, follow/unfollow, and (with an account)

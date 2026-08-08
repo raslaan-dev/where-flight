@@ -263,3 +263,43 @@ describe('visibleAircraft', () => {
     expect(visibleAircraft(null, false)).toEqual([]);
   });
 });
+
+describe('observed trails', () => {
+  it('records each refresh position so the map can draw a trail', async () => {
+    const fetchMock = installFetchMock(
+      jest.fn(async () => statesBody([row('407a06', { 5: -0.05, 6: 51.9 })]))
+    );
+    await useAircraftStore.getState().refresh();
+
+    fetchMock.mockImplementation(async () =>
+      statesBody([row('407a06', { 5: -0.25, 6: 52.1 })])
+    );
+    await useAircraftStore.getState().refresh();
+
+    expect(useAircraftStore.getState().trails['407a06']).toEqual([
+      [-0.05, 51.9],
+      [-0.25, 52.1],
+    ]);
+  });
+
+  it('forgets aircraft that have left the viewport, so the map does not grow forever', async () => {
+    const fetchMock = installFetchMock(
+      jest.fn(async () => statesBody([row('407a06'), row('4ca1fd')]))
+    );
+    await useAircraftStore.getState().refresh();
+    expect(Object.keys(useAircraftStore.getState().trails).sort()).toEqual(['407a06', '4ca1fd']);
+
+    fetchMock.mockImplementation(async () => statesBody([row('407a06')]));
+    await useAircraftStore.getState().refresh();
+
+    expect(Object.keys(useAircraftStore.getState().trails)).toEqual(['407a06']);
+  });
+
+  it('does not record a position for an aircraft heard without one', async () => {
+    installFetchMock(jest.fn(async () => statesBody([row('407a06', { 5: null, 6: null })])));
+
+    await useAircraftStore.getState().refresh();
+
+    expect(useAircraftStore.getState().trails['407a06']).toBeUndefined();
+  });
+});

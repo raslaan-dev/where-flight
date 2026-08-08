@@ -9,6 +9,7 @@
  */
 
 import type { FeatureDelta } from './diff';
+import type { Trail } from './trail';
 
 /** Messages the WebView posts out to React Native. */
 export type OutboundMessage =
@@ -92,6 +93,10 @@ export const inject = {
   },
   select(icao24: string | null): string {
     return call('select', icao24);
+  },
+  /** The line behind the selected aircraft. Null clears it. */
+  setTrail(trail: Trail | null): string {
+    return call('setTrail', trail);
   },
   /** Off means jump rather than ease, everywhere. */
   setMotion(enabled: boolean): string {
