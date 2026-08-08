@@ -68,12 +68,12 @@ const dark: Palette = {
   border: '#27313E',
   borderStrong: '#5F6E7E',
 
-  accent: '#4CC9F0',
-  accentMuted: '#1E3A47',
+  accent: '#74A9FF',
+  accentMuted: '#16283F',
   success: '#5DE29A',
   warn: '#FBBF24',
   danger: '#FF8095',
-  focusRing: '#8AD9FF',
+  focusRing: '#9CC4FF',
 
   altitudeRamp: ['#5D6470', '#717573', '#8B896C', '#A79E58', '#CDBF4D', '#FDEA45'],
 };
@@ -95,12 +95,12 @@ const light: Palette = {
   border: '#D3DBE3',
   borderStrong: '#7C8794',
 
-  accent: '#0B63C5',
-  accentMuted: '#DCEAFB',
+  accent: '#0B52C9',
+  accentMuted: '#DBE6FB',
   success: '#0F7A3D',
   warn: '#8A5A00',
   danger: '#C41E3F',
-  focusRing: '#0B63C5',
+  focusRing: '#0B52C9',
 
   altitudeRamp: ['#00224E', '#0F386E', '#2F4668', '#4E576B', '#666C70', '#7B7A6B'],
 };
@@ -122,8 +122,8 @@ const highContrastDark: Palette = {
   border: '#8A8A8A',
   borderStrong: '#FFFFFF',
 
-  accent: '#6FE3FF',
-  accentMuted: '#00303D',
+  accent: '#9CC4FF',
+  accentMuted: '#001B3D',
   success: '#79FFB0',
   warn: '#FFD24D',
   danger: '#FF9BAC',
@@ -149,8 +149,8 @@ const highContrastLight: Palette = {
   border: '#565656',
   borderStrong: '#000000',
 
-  accent: '#00397F',
-  accentMuted: '#D6E4F7',
+  accent: '#00337A',
+  accentMuted: '#D5E2F7',
   success: '#005522',
   warn: '#5C3B00',
   danger: '#96001F',
