@@ -43,11 +43,19 @@ export function TrailControl({ icao24 }: { icao24: string }) {
   const loading =
     mine && (trackStatus === 'loading' || routeStatus === 'loading');
   const fetched = track !== null || route !== undefined;
-  const cost = TRACK_REQUEST_COST + routeFetchCost();
+  const routeError = useRouteStore((state) => state.errorKind);
+  const failed = mine ? (routeError ?? trackError) : null;
+
+  // The two halves have different permissions. /flights/aircraft answers for
+  // anonymous callers, so the route is available to everyone; /tracks is
+  // authenticated-only, so the altitude path is the part an account buys.
+  // Gating both on an account — as this did — meant an anonymous user never
+  // saw a button at all and could never load a route.
+  const cost = connected ? TRACK_REQUEST_COST + routeFetchCost() : routeFetchCost();
 
   const load = () => {
     void loadRoute(icao24);
-    void loadTrack(icao24);
+    if (connected) void loadTrack(icao24);
   };
 
   if (loading) {
@@ -83,27 +91,27 @@ export function TrailControl({ icao24 }: { icao24: string }) {
     );
   }
 
-  if (!connected) {
-    return (
-      <Text variant="caption" tone="muted">
-        Trail shows where this flight has been since you opened the app. Connect an
-        OpenSky account in Settings for its route and full path back to take-off.
-      </Text>
-    );
-  }
-
   return (
     <View style={styles.stack}>
-      {mine && trackError ? (
+      {mine && failed ? (
         <Text variant="caption" tone="muted">
-          {ERROR_COPY[trackError].body}
+          {ERROR_COPY[failed].body}
+        </Text>
+      ) : !connected ? (
+        <Text variant="caption" tone="muted">
+          The trail starts when you opened the app. Connect an OpenSky account in
+          Settings to also chart the full path back to take-off.
         </Text>
       ) : null}
       <Button
-        label={mine && trackError ? 'Try again' : 'Show route and path'}
+        label={mine && failed ? 'Try again' : connected ? 'Show route and path' : 'Show route'}
         variant="secondary"
         onPress={load}
-        accessibilityHint={`Fetches where this flight departed, where it is heading, and its flown path. Costs about ${cost} credits.`}
+        accessibilityHint={
+          connected
+            ? `Fetches where this flight departed, where it is heading, and its flown path. Costs about ${cost} credits.`
+            : `Fetches where this flight departed and where it is heading. Costs about ${cost} credits.`
+        }
       />
     </View>
   );

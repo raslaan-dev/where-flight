@@ -52,11 +52,6 @@ export function TrackSection({ icao24 }: { icao24: string }) {
 
       {track ? (
         <AltitudeRibbon track={track} units={units} />
-      ) : !connected ? (
-        <Text tone="muted">
-          Flight paths need a connected OpenSky account. Add your API client under Settings, or
-          carry on without — everything else works anonymously.
-        </Text>
       ) : mine && status === 'loading' ? (
         <View
           style={styles.loading}
@@ -74,18 +69,29 @@ export function TrackSection({ icao24 }: { icao24: string }) {
             </Text>
           ) : (
             <Text tone="muted">
-              The route flown so far, charted by altitude. Loaded on request because it counts
-              against the daily API allowance.
+              {connected
+                ? 'Where this flight departed and is heading, plus the path flown so far charted by altitude. Loaded on request because it counts against the daily API allowance.'
+                : 'Where this flight departed and is heading. The altitude chart additionally needs a connected OpenSky account — everything else works anonymously.'}
             </Text>
           )}
           <Button
-            label={mine && errorKind !== null ? 'Try again' : 'Load route and path'}
+            label={
+              mine && errorKind !== null
+                ? 'Try again'
+                : connected
+                  ? 'Load route and path'
+                  : 'Load route'
+            }
             variant="secondary"
             onPress={() => {
               void loadRoute(icao24);
-              void load(icao24);
+              // /tracks is authenticated-only; asking anonymously would spend
+              // nothing but return an error the user cannot act on.
+              if (connected) void load(icao24);
             }}
-            accessibilityHint={`Uses about ${TRACK_REQUEST_COST + routeFetchCost()} of today's API credits`}
+            accessibilityHint={`Uses about ${
+              connected ? TRACK_REQUEST_COST + routeFetchCost() : routeFetchCost()
+            } of today's API credits`}
           />
         </>
       )}
