@@ -844,45 +844,31 @@ Copy this block once per participant and complete it during the session.
 
 ## Screenshot Evidence
 
-Capture on both platforms. iOS goes in `docs/screenshots/ios/`, Android in
-`docs/screenshots/android/`. Instructions for both are in
-[`docs/screenshots/README.md`](docs/screenshots/README.md).
+Screenshots live in `docs/screenshots/android/`.
 
 **Map with an aircraft selected**
 
-> ![Map — iOS](docs/screenshots/ios/map.png)
->
-> ![Map — Android](docs/screenshots/android/map.png)
+> ![Map](docs/screenshots/android/map.png)
 
 **Search results**
 
-> ![Search — iOS](docs/screenshots/ios/search.png)
->
-> ![Search — Android](docs/screenshots/android/search.png)
+> ![Search](docs/screenshots/android/search.png)
 
 **Flight detail**
 
-> ![Detail — iOS](docs/screenshots/ios/detail.png)
->
-> ![Detail — Android](docs/screenshots/android/detail.png)
+> ![Detail](docs/screenshots/android/detail.png)
 
 **Track tab in aeroplane mode**
 
-> ![Track — iOS](docs/screenshots/ios/track.png)
->
-> ![Track — Android](docs/screenshots/android/track.png)
+> ![Track](docs/screenshots/android/track.png)
 
 **Airport board with the credit cost visible**
 
-> ![Airports — iOS](docs/screenshots/ios/airports.png)
->
-> ![Airports — Android](docs/screenshots/android/airports.png)
+> ![Airports](docs/screenshots/android/airports.png)
 
 **Settings with the budget meter**
 
-> ![Settings — iOS](docs/screenshots/ios/settings.png)
->
-> ![Settings — Android](docs/screenshots/android/settings.png)
+> ![Settings](docs/screenshots/android/settings.png)
 
 **A participant mid-session** *(optional, with permission)*
 

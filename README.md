@@ -75,9 +75,7 @@ identifiable without colour vision.
 
 ### Screenshot — Map Screen
 
-> ![Map — iOS](docs/screenshots/ios/map.png)
->
-> ![Map — Android](docs/screenshots/android/map.png)
+> ![Map](docs/screenshots/android/map.png)
 
 **Figure 1. The Map screen showing live traffic with one aircraft selected and its trail drawn.**
 
@@ -101,9 +99,7 @@ searches is already on the device.
 
 ### Screenshot — Search Screen
 
-> ![Search — iOS](docs/screenshots/ios/search.png)
->
-> ![Search — Android](docs/screenshots/android/search.png)
+> ![Search](docs/screenshots/android/search.png)
 
 **Figure 2. The Search screen listing live aircraft, with the freshness caption visible.**
 
@@ -124,9 +120,7 @@ The screen displays:
 
 ### Screenshot — Flight Detail
 
-> ![Detail — iOS](docs/screenshots/ios/detail.png)
->
-> ![Detail — Android](docs/screenshots/android/detail.png)
+> ![Detail](docs/screenshots/android/detail.png)
 
 **Figure 3. Flight Detail showing full telemetry for a selected aircraft.**
 
@@ -144,9 +138,7 @@ opens the map centred on that flight.
 
 ### Screenshot — Track Screen
 
-> ![Track — iOS](docs/screenshots/ios/track.png)
->
-> ![Track — Android](docs/screenshots/android/track.png)
+> ![Track](docs/screenshots/android/track.png)
 
 **Figure 4. The Track screen in aeroplane mode, showing tracked flights with "last seen" ages.**
 
@@ -170,9 +162,7 @@ fetched board is cached so opening it again is free.
 
 ### Screenshot — Airports Screen
 
-> ![Airports — iOS](docs/screenshots/ios/airports.png)
->
-> ![Airports — Android](docs/screenshots/android/airports.png)
+> ![Airports](docs/screenshots/android/airports.png)
 
 **Figure 5. An airport arrivals board, with the credit cost shown on the load button.**
 
@@ -195,9 +185,7 @@ The screen provides:
 
 ### Screenshot — Settings Screen
 
-> ![Settings — iOS](docs/screenshots/ios/settings.png)
->
-> ![Settings — Android](docs/screenshots/android/settings.png)
+> ![Settings](docs/screenshots/android/settings.png)
 
 **Figure 6. Settings showing the units control and the API budget meter.**
 
@@ -205,9 +193,9 @@ The screen provides:
 
 ### Screenshot — Dark and Light Themes
 
-> ![Theme Dark — iOS](docs/screenshots/ios/theme-dark.png)
+> ![Theme Dark](docs/screenshots/android/theme-dark.png)
 >
-> ![Theme Light — iOS](docs/screenshots/ios/theme-light.png)
+> ![Theme Light](docs/screenshots/android/theme-light.png)
 
 **Figure 7. The same screen in dark and light themes.**
 
@@ -220,9 +208,7 @@ implemented with expo-router's file-based routing.
 
 ### Screenshot — Bottom Navigation
 
-> ![Navigation — iOS](docs/screenshots/ios/navigation.png)
->
-> ![Navigation — Android](docs/screenshots/android/navigation.png)
+> ![Navigation](docs/screenshots/android/navigation.png)
 
 **Figure 8. The bottom tab bar, showing all five tabs.**
 
@@ -352,9 +338,8 @@ for a frame before real data arrives.
 
 ### Screenshot — Persistence Evidence
 
-> ![Persistence Before — iOS](docs/screenshots/ios/persistence-before.png)
->
-> ![Persistence After — iOS](docs/screenshots/ios/persistence-after.png)
+> **[ SCREENSHOT STILL NEEDED — `docs/screenshots/ios/persistence-before.png` ]**
+> **[ SCREENSHOT STILL NEEDED — `docs/screenshots/ios/persistence-after.png` ]**
 
 **Figure 9. A tracked flight surviving a full app restart in aeroplane mode, with its "last seen" age.**
 
@@ -461,8 +446,7 @@ Other handling worth noting:
 
 # 10. Accessibility
 
-Accessibility shaped the architecture rather than being audited at the end. The
-full write-up is in [`docs/accessibility.md`](docs/accessibility.md).
+Accessibility shaped the architecture rather than being audited at the end.
 
 * **A real non-visual equivalent to the map.** The WebView is hidden from
   assistive technology entirely; in its place sit a live status region, native
@@ -611,37 +595,16 @@ mean emulator screenshots can differ from device screenshots.
 | **Functionality** | Live map, search, flight detail, routes, flight paths, airport boards, budget meter |
 | **Code quality** | TypeScript throughout, no React in `lib/` or `api/`, exhaustive typed error union |
 | **Testing and debugging** | 461 tests across 30 suites, typed error handling, error boundaries |
-| **Documentation** | README, `DEVELOPMENT.md`, `USER_TESTING.md`, `docs/accessibility.md` |
+| **Documentation** | README and `USER_TESTING.md` |
 
 ---
 
-# 17. Supporting Documentation
-
-### [`DEVELOPMENT.md`](DEVELOPMENT.md)
-
-Architecture, directory structure, key implementation patterns, development
-scripts, the design system, and how to add a new screen.
-
-### [`USER_TESTING.md`](USER_TESTING.md)
-
-Testing objectives, environment, participant summaries, task scenarios,
-observation records, quantitative and qualitative results, recommendations and
-reflection.
-
-### [`docs/accessibility.md`](docs/accessibility.md)
-
-The full accessibility write-up, including a gesture-to-equivalent table and a
-manual TalkBack and VoiceOver test script.
-
----
 
 # 18. Screenshot Checklist
 
 Before submitting, replace every screenshot placeholder above with a real
 screenshot from the final application. **Capture each on both platforms** —
-iOS screenshots go in `docs/screenshots/ios/`, Android in
-`docs/screenshots/android/`. Capture instructions for both are in
-[`docs/screenshots/README.md`](docs/screenshots/README.md).
+Screenshots live in `docs/screenshots/android/` (and `ios/` if you add them).
 
 * [ ] **Figure 1:** Map screen with an aircraft selected and its trail
 * [ ] **Figure 2:** Search screen listing live aircraft
