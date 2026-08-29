@@ -15,8 +15,8 @@ understandable and functional, and that the two central design decisions —
 the map not being the only route to information, and openly pricing API
 requests — hold up with people who did not build the app.
 
-**Participants**: [FILL IN — number] users, with varying technical background
-and varying interest in aviation. The brief asks for 3–5.
+**Participants**: 3 users — Looth, Milyaaf and Saha — with varying technical
+background and varying interest in aviation.
 
 **Duration**: [FILL IN — approximately 20–30 minutes per session]
 
@@ -65,7 +65,7 @@ or an Android emulator. One task is performed deliberately in aeroplane mode.
 - ✅ User can say approximately how many aircraft are in view
 - ✅ User understands the data is live rather than a static picture
 
-**Observation Notes — Participant A**
+**Observation Notes — Participant 1 (Looth)**
 ```
 Participant: [FILL IN — reference, age, occupation]
 Device: [iPhone 11 / Android emulator]
@@ -79,7 +79,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant B**
+**Observation Notes — Participant 2 (Milyaaf)**
 ```
 Participant: [FILL IN]
 Device: [FILL IN]
@@ -93,7 +93,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant C**
+**Observation Notes — Participant 3 (Saha)**
 ```
 Participant: [FILL IN]
 Device: [FILL IN]
@@ -125,7 +125,7 @@ User quote: "[FILL IN]"
 - ✅ The selection card appears with callsign, altitude and speed
 - ✅ User reads the altitude correctly, with its unit
 
-**Observation Notes — Participant A**
+**Observation Notes — Participant 1 (Looth)**
 ```
 Time to complete: [FILL IN]
 Did they hit the aircraft first try, or miss? [FILL IN]
@@ -136,7 +136,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant B**
+**Observation Notes — Participant 2 (Milyaaf)**
 ```
 Time to complete: [FILL IN]
 Did they hit the aircraft first try, or miss? [FILL IN]
@@ -147,7 +147,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant C**
+**Observation Notes — Participant 3 (Saha)**
 ```
 Time to complete: [FILL IN]
 Did they hit the aircraft first try, or miss? [FILL IN]
@@ -177,7 +177,7 @@ User quote: "[FILL IN]"
 - ✅ Matching aircraft appear as results
 - ✅ User can open one of them
 
-**Observation Notes — Participant A**
+**Observation Notes — Participant 1 (Looth)**
 ```
 Time to complete: [FILL IN]
 Taps before reaching Search: [FILL IN]
@@ -188,7 +188,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant B**
+**Observation Notes — Participant 2 (Milyaaf)**
 ```
 Time to complete: [FILL IN]
 Taps before reaching Search: [FILL IN]
@@ -199,7 +199,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant C**
+**Observation Notes — Participant 3 (Saha)**
 ```
 Time to complete: [FILL IN]
 Taps before reaching Search: [FILL IN]
@@ -229,7 +229,7 @@ User quote: "[FILL IN]"
 - ✅ User uses the **Map** button on the tracked card
 - ✅ The map opens centred on that aircraft, highlighted
 
-**Observation Notes — Participant A**
+**Observation Notes — Participant 1 (Looth)**
 ```
 Time to complete: [FILL IN]
 Which Track control did they use? [map card / detail screen]
@@ -240,7 +240,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant B**
+**Observation Notes — Participant 2 (Milyaaf)**
 ```
 Time to complete: [FILL IN]
 Which Track control did they use? [FILL IN]
@@ -251,7 +251,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant C**
+**Observation Notes — Participant 3 (Saha)**
 ```
 Time to complete: [FILL IN]
 Which Track control did they use? [FILL IN]
@@ -280,7 +280,7 @@ User quote: "[FILL IN]"
 - ✅ User reads the compass bearing correctly
 - ✅ User understands "last position" as an age, not a time of day
 
-**Observation Notes — Participant A**
+**Observation Notes — Participant 1 (Looth)**
 ```
 Time to complete: [FILL IN]
 How did they reach the detail screen? [FILL IN]
@@ -291,7 +291,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant B**
+**Observation Notes — Participant 2 (Milyaaf)**
 ```
 Time to complete: [FILL IN]
 How did they reach the detail screen? [FILL IN]
@@ -302,7 +302,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant C**
+**Observation Notes — Participant 3 (Saha)**
 ```
 Time to complete: [FILL IN]
 How did they reach the detail screen? [FILL IN]
@@ -332,7 +332,7 @@ User quote: "[FILL IN]"
 - ✅ User presses it and a board loads
 - ✅ User can say what the list is showing
 
-**Observation Notes — Participant A**
+**Observation Notes — Participant 1 (Looth)**
 ```
 Time to complete: [FILL IN]
 Did they read the credit cost before pressing? [Yes / No / Unsure]
@@ -343,7 +343,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant B**
+**Observation Notes — Participant 2 (Milyaaf)**
 ```
 Time to complete: [FILL IN]
 Did they read the credit cost before pressing? [FILL IN]
@@ -354,7 +354,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant C**
+**Observation Notes — Participant 3 (Saha)**
 ```
 Time to complete: [FILL IN]
 Did they read the credit cost before pressing? [FILL IN]
@@ -383,7 +383,7 @@ User quote: "[FILL IN]"
 - ✅ The "last seen" age is visible and understood as an age
 - ✅ User understands the data is stored rather than live
 
-**Observation Notes — Participant A**
+**Observation Notes — Participant 1 (Looth)**
 ```
 Time to complete: [FILL IN]
 Did they expect it to still work? [FILL IN]
@@ -394,7 +394,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant B**
+**Observation Notes — Participant 2 (Milyaaf)**
 ```
 Time to complete: [FILL IN]
 Did they expect it to still work? [FILL IN]
@@ -405,7 +405,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant C**
+**Observation Notes — Participant 3 (Saha)**
 ```
 Time to complete: [FILL IN]
 Did they expect it to still work? [FILL IN]
@@ -433,7 +433,7 @@ User quote: "[FILL IN]"
 - ✅ User selects Metric
 - ✅ Values elsewhere in the app update accordingly
 
-**Observation Notes — Participant A**
+**Observation Notes — Participant 1 (Looth)**
 ```
 Time to complete: [FILL IN]
 Did they find Units without scrolling past it? [FILL IN]
@@ -444,7 +444,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant B**
+**Observation Notes — Participant 2 (Milyaaf)**
 ```
 Time to complete: [FILL IN]
 Did they find Units without scrolling past it? [FILL IN]
@@ -455,7 +455,7 @@ Confusion points: [FILL IN]
 User quote: "[FILL IN]"
 ```
 
-**Observation Notes — Participant C**
+**Observation Notes — Participant 3 (Saha)**
 ```
 Time to complete: [FILL IN]
 Did they find Units without scrolling past it? [FILL IN]
@@ -476,7 +476,7 @@ User quote: "[FILL IN]"
 
 Ask each participant the same questions, and record answers in their own words.
 
-### Participant A — Post-Test Responses
+### Participant 1 (Looth) — Post-Test Responses
 
 ```
 1. What did you think this app was for, before you used it?
@@ -499,34 +499,10 @@ Ask each participant the same questions, and record answers in their own words.
 6. Would you use this again? What would need to change first?
    [FILL IN]
 
-Overall recommendation (1–5): [FILL IN]
+Overall recommendation (1-5): [FILL IN]
 ```
 
-### Participant B — Post-Test Responses
-
-```
-1. What did you think this app was for, before you used it?
-   [FILL IN]
-
-2. Was there any point where you were not sure what to do next?
-   [FILL IN]
-
-3. Did the altitude colours mean anything to you?
-   [FILL IN]
-
-4. Did you read the credit cost, and did it matter?
-   [FILL IN]
-
-5. Was anything missing that you expected?
-   [FILL IN]
-
-6. Would you use this again? What would need to change first?
-   [FILL IN]
-
-Overall recommendation (1–5): [FILL IN]
-```
-
-### Participant C — Post-Test Responses
+### Participant 2 (Milyaaf) — Post-Test Responses
 
 ```
 1. What did you think this app was for, before you used it?
@@ -547,7 +523,31 @@ Overall recommendation (1–5): [FILL IN]
 6. Would you use this again? What would need to change first?
    [FILL IN]
 
-Overall recommendation (1–5): [FILL IN]
+Overall recommendation (1-5): [FILL IN]
+```
+
+### Participant 3 (Saha) — Post-Test Responses
+
+```
+1. What did you think this app was for, before you used it?
+   [FILL IN]
+
+2. Was there any point where you were not sure what to do next?
+   [FILL IN]
+
+3. Did the altitude colours mean anything to you?
+   [FILL IN]
+
+4. Did you read the credit cost, and did it matter?
+   [FILL IN]
+
+5. Was anything missing that you expected?
+   [FILL IN]
+
+6. Would you use this again? What would need to change first?
+   [FILL IN]
+
+Overall recommendation (1-5): [FILL IN]
 ```
 
 ---
@@ -648,7 +648,7 @@ confused. These came from development testing, not from users.
 
 Copy this block once per participant and complete it during the session.
 
-### Session 1 — Participant A
+### Session 1 — Participant 1 (Looth)
 
 ```markdown
 # where-flight User Testing Session
@@ -715,7 +715,7 @@ Copy this block once per participant and complete it during the session.
 
 ---
 
-### Session 2 — Participant B
+### Session 2 — Participant 2 (Milyaaf)
 
 ```markdown
 [Copy the Session 1 block and complete it for this participant.]
@@ -723,7 +723,7 @@ Copy this block once per participant and complete it during the session.
 
 ---
 
-### Session 3 — Participant C
+### Session 3 — Participant 3 (Saha)
 
 ```markdown
 [Copy the Session 1 block and complete it for this participant.]
@@ -834,11 +834,11 @@ and did it matter?]
 
 ### Participant Quotes
 
-> "[FILL IN]" — Participant [X]
+> "[FILL IN]" — [Looth / Milyaaf / Saha]
 
-> "[FILL IN]" — Participant [X]
+> "[FILL IN]" — [Looth / Milyaaf / Saha]
 
-> "[FILL IN]" — Participant [X]
+> "[FILL IN]" — [Looth / Milyaaf / Saha]
 
 ### Reflection
 
