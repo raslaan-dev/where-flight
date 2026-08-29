@@ -848,27 +848,39 @@ Screenshots live in `docs/screenshots/android/`.
 
 **Map with an aircraft selected**
 
-> ![Map](docs/screenshots/android/map.png)
+> ![Map — iOS](docs/screenshots/ios/map.jpg)
+>
+> ![Map — Android](docs/screenshots/android/map.png)
 
 **Search results**
 
-> ![Search](docs/screenshots/android/search.png)
+> ![Search — iOS](docs/screenshots/ios/search.jpg)
+>
+> ![Search — Android](docs/screenshots/android/search.png)
 
 **Flight detail**
 
-> ![Detail](docs/screenshots/android/detail.png)
+> ![Detail — iOS](docs/screenshots/ios/detail.jpg)
+>
+> ![Detail — Android](docs/screenshots/android/detail.png)
 
 **Track tab in aeroplane mode**
 
-> ![Track](docs/screenshots/android/track.png)
+> ![Track — iOS](docs/screenshots/ios/track.jpg)
+>
+> ![Track — Android](docs/screenshots/android/track.png)
 
 **Airport board with the credit cost visible**
 
-> ![Airports](docs/screenshots/android/airports.png)
+> ![Airports — iOS](docs/screenshots/ios/airports.jpg)
+>
+> ![Airports — Android](docs/screenshots/android/airports.png)
 
 **Settings with the budget meter**
 
-> ![Settings](docs/screenshots/android/settings.png)
+> ![Settings — iOS](docs/screenshots/ios/settings.jpg)
+>
+> ![Settings — Android](docs/screenshots/android/settings.png)
 
 **A participant mid-session** *(optional, with permission)*
 

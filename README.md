@@ -75,7 +75,9 @@ identifiable without colour vision.
 
 ### Screenshot — Map Screen
 
-> ![Map](docs/screenshots/android/map.png)
+> ![Map — iOS](docs/screenshots/ios/map.jpg)
+>
+> ![Map — Android](docs/screenshots/android/map.png)
 
 **Figure 1. The Map screen showing live traffic with one aircraft selected and its trail drawn.**
 
@@ -99,7 +101,9 @@ searches is already on the device.
 
 ### Screenshot — Search Screen
 
-> ![Search](docs/screenshots/android/search.png)
+> ![Search — iOS](docs/screenshots/ios/search.jpg)
+>
+> ![Search — Android](docs/screenshots/android/search.png)
 
 **Figure 2. The Search screen listing live aircraft, with the freshness caption visible.**
 
@@ -120,7 +124,9 @@ The screen displays:
 
 ### Screenshot — Flight Detail
 
-> ![Detail](docs/screenshots/android/detail.png)
+> ![Detail — iOS](docs/screenshots/ios/detail.jpg)
+>
+> ![Detail — Android](docs/screenshots/android/detail.png)
 
 **Figure 3. Flight Detail showing full telemetry for a selected aircraft.**
 
@@ -138,7 +144,9 @@ opens the map centred on that flight.
 
 ### Screenshot — Track Screen
 
-> ![Track](docs/screenshots/android/track.png)
+> ![Track — iOS](docs/screenshots/ios/track.jpg)
+>
+> ![Track — Android](docs/screenshots/android/track.png)
 
 **Figure 4. The Track screen in aeroplane mode, showing tracked flights with "last seen" ages.**
 
@@ -162,7 +170,9 @@ fetched board is cached so opening it again is free.
 
 ### Screenshot — Airports Screen
 
-> ![Airports](docs/screenshots/android/airports.png)
+> ![Airports — iOS](docs/screenshots/ios/airports.jpg)
+>
+> ![Airports — Android](docs/screenshots/android/airports.png)
 
 **Figure 5. An airport arrivals board, with the credit cost shown on the load button.**
 
@@ -185,7 +195,9 @@ The screen provides:
 
 ### Screenshot — Settings Screen
 
-> ![Settings](docs/screenshots/android/settings.png)
+> ![Settings — iOS](docs/screenshots/ios/settings.jpg)
+>
+> ![Settings — Android](docs/screenshots/android/settings.png)
 
 **Figure 6. Settings showing the units control and the API budget meter.**
 
@@ -193,9 +205,13 @@ The screen provides:
 
 ### Screenshot — Dark and Light Themes
 
-> ![Theme Dark](docs/screenshots/android/theme-dark.png)
+> ![Theme Dark — iOS](docs/screenshots/ios/theme-dark.jpg)
 >
-> ![Theme Light](docs/screenshots/android/theme-light.png)
+> ![Theme Dark — Android](docs/screenshots/android/theme-dark.png)
+>
+> ![Theme Light — iOS](docs/screenshots/ios/theme-light.jpg)
+>
+> ![Theme Light — Android](docs/screenshots/android/theme-light.png)
 
 **Figure 7. The same screen in dark and light themes.**
 
@@ -208,7 +224,9 @@ implemented with expo-router's file-based routing.
 
 ### Screenshot — Bottom Navigation
 
-> ![Navigation](docs/screenshots/android/navigation.png)
+> ![Navigation — iOS](docs/screenshots/ios/navigation.jpg)
+>
+> ![Navigation — Android](docs/screenshots/android/navigation.png)
 
 **Figure 8. The bottom tab bar, showing all five tabs.**
 
