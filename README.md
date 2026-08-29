@@ -75,9 +75,9 @@ identifiable without colour vision.
 
 ### Screenshot — Map Screen
 
-> **[ PASTE SCREENSHOT — iOS ]** `docs/screenshots/ios/map.png`
+> ![Map — iOS](docs/screenshots/ios/map.png)
 >
-> **[ PASTE SCREENSHOT — Android ]** `docs/screenshots/android/map.png`
+> ![Map — Android](docs/screenshots/android/map.png)
 
 **Figure 1. The Map screen showing live traffic with one aircraft selected and its trail drawn.**
 
@@ -101,9 +101,9 @@ searches is already on the device.
 
 ### Screenshot — Search Screen
 
-> **[ PASTE SCREENSHOT — iOS ]** `docs/screenshots/ios/search.png`
+> ![Search — iOS](docs/screenshots/ios/search.png)
 >
-> **[ PASTE SCREENSHOT — Android ]** `docs/screenshots/android/search.png`
+> ![Search — Android](docs/screenshots/android/search.png)
 
 **Figure 2. The Search screen listing live aircraft, with the freshness caption visible.**
 
@@ -124,9 +124,9 @@ The screen displays:
 
 ### Screenshot — Flight Detail
 
-> **[ PASTE SCREENSHOT — iOS ]** `docs/screenshots/ios/detail.png`
+> ![Detail — iOS](docs/screenshots/ios/detail.png)
 >
-> **[ PASTE SCREENSHOT — Android ]** `docs/screenshots/android/detail.png`
+> ![Detail — Android](docs/screenshots/android/detail.png)
 
 **Figure 3. Flight Detail showing full telemetry for a selected aircraft.**
 
@@ -144,9 +144,9 @@ opens the map centred on that flight.
 
 ### Screenshot — Track Screen
 
-> **[ PASTE SCREENSHOT — iOS ]** `docs/screenshots/ios/track.png`
+> ![Track — iOS](docs/screenshots/ios/track.png)
 >
-> **[ PASTE SCREENSHOT — Android ]** `docs/screenshots/android/track.png`
+> ![Track — Android](docs/screenshots/android/track.png)
 
 **Figure 4. The Track screen in aeroplane mode, showing tracked flights with "last seen" ages.**
 
@@ -170,9 +170,9 @@ fetched board is cached so opening it again is free.
 
 ### Screenshot — Airports Screen
 
-> **[ PASTE SCREENSHOT — iOS ]** `docs/screenshots/ios/airports.png`
+> ![Airports — iOS](docs/screenshots/ios/airports.png)
 >
-> **[ PASTE SCREENSHOT — Android ]** `docs/screenshots/android/airports.png`
+> ![Airports — Android](docs/screenshots/android/airports.png)
 
 **Figure 5. An airport arrivals board, with the credit cost shown on the load button.**
 
@@ -195,9 +195,9 @@ The screen provides:
 
 ### Screenshot — Settings Screen
 
-> **[ PASTE SCREENSHOT — iOS ]** `docs/screenshots/ios/settings.png`
+> ![Settings — iOS](docs/screenshots/ios/settings.png)
 >
-> **[ PASTE SCREENSHOT — Android ]** `docs/screenshots/android/settings.png`
+> ![Settings — Android](docs/screenshots/android/settings.png)
 
 **Figure 6. Settings showing the units control and the API budget meter.**
 
@@ -205,9 +205,9 @@ The screen provides:
 
 ### Screenshot — Dark and Light Themes
 
-> **[ PASTE SCREENSHOT — Dark ]** `docs/screenshots/ios/theme-dark.png`
+> ![Theme Dark — iOS](docs/screenshots/ios/theme-dark.png)
 >
-> **[ PASTE SCREENSHOT — Light ]** `docs/screenshots/ios/theme-light.png`
+> ![Theme Light — iOS](docs/screenshots/ios/theme-light.png)
 
 **Figure 7. The same screen in dark and light themes.**
 
@@ -220,9 +220,9 @@ implemented with expo-router's file-based routing.
 
 ### Screenshot — Bottom Navigation
 
-> **[ PASTE SCREENSHOT — iOS ]** `docs/screenshots/ios/navigation.png`
+> ![Navigation — iOS](docs/screenshots/ios/navigation.png)
 >
-> **[ PASTE SCREENSHOT — Android ]** `docs/screenshots/android/navigation.png`
+> ![Navigation — Android](docs/screenshots/android/navigation.png)
 
 **Figure 8. The bottom tab bar, showing all five tabs.**
 
@@ -352,9 +352,9 @@ for a frame before real data arrives.
 
 ### Screenshot — Persistence Evidence
 
-> **[ PASTE SCREENSHOT — before restart ]** `docs/screenshots/ios/persistence-before.png`
+> ![Persistence Before — iOS](docs/screenshots/ios/persistence-before.png)
 >
-> **[ PASTE SCREENSHOT — after restart, aeroplane mode ]** `docs/screenshots/ios/persistence-after.png`
+> ![Persistence After — iOS](docs/screenshots/ios/persistence-after.png)
 
 **Figure 9. A tracked flight surviving a full app restart in aeroplane mode, with its "last seen" age.**
 
