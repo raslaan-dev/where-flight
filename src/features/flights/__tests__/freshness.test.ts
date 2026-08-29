@@ -33,7 +33,53 @@ describe('freshnessBanner', () => {
   it('reports a failed refresh as a banner over the old data, not a dead end', () => {
     const banner = freshnessBanner({ ...LIVE, errorKind: 'SERVER', lastLoadedAt: at(120) });
     expect(banner?.tone).toBe('danger');
-    expect(banner?.message).toContain('Could not refresh');
+    expect(banner?.message).toContain('OpenSky is having trouble');
+    expect(banner?.message).toContain('2 minutes ago');
+  });
+
+  // The bug this replaced: every one of these said only "Could not refresh",
+  // so a user with a working account and credits to spare had no way to tell
+  // whether the problem was theirs, their allowance, or OpenSky's.
+  it.each([
+    ['AUTH_INVALID', 'credentials were rejected'],
+    ['RATE_LIMITED', 'rate limiting'],
+    ['BUDGET_EXHAUSTED', "allowance is used up"],
+    ['TIMEOUT', 'timed out'],
+    ['SERVER', 'having trouble'],
+    ['BAD_PAYLOAD', 'Unexpected response'],
+  ] as const)('names %s rather than blaming the refresh generically', (kind, expected) => {
+    const banner = freshnessBanner({ ...LIVE, errorKind: kind, lastLoadedAt: at(120) });
+    expect(banner?.message).toContain(expected);
+    expect(banner?.message).not.toContain('Could not refresh');
+  });
+
+  it('does not offer a retry that would make rate limiting worse', () => {
+    const banner = freshnessBanner({ ...LIVE, errorKind: 'RATE_LIMITED', lastLoadedAt: at(120) });
+    expect(banner?.canRetry).toBe(false);
+    // Amber, not red: it clears up on its own and nothing is broken.
+    expect(banner?.tone).toBe('warn');
+  });
+
+  it('does not offer a retry once the daily allowance is gone', () => {
+    const banner = freshnessBanner({
+      ...LIVE,
+      errorKind: 'BUDGET_EXHAUSTED',
+      lastLoadedAt: at(120),
+    });
+    expect(banner?.canRetry).toBe(false);
+    expect(banner?.tone).toBe('warn');
+  });
+
+  it('does not offer a retry while the same credentials would be rejected again', () => {
+    expect(
+      freshnessBanner({ ...LIVE, errorKind: 'AUTH_INVALID', lastLoadedAt: at(120) })?.canRetry
+    ).toBe(false);
+  });
+
+  it('does offer a retry for a failure that a retry could actually fix', () => {
+    expect(
+      freshnessBanner({ ...LIVE, errorKind: 'SERVER', lastLoadedAt: at(120) })?.canRetry
+    ).toBe(true);
   });
 
   it('prefers the offline message over the error one, because offline is the cause', () => {

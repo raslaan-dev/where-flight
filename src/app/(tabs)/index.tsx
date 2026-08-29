@@ -156,8 +156,8 @@ export default function MapScreen() {
           <Banner
             tone={freshness.tone}
             message={freshness.message}
-            actionLabel={online ? 'Retry' : undefined}
-            onAction={online ? () => void refresh() : undefined}
+            actionLabel={online && freshness.canRetry ? 'Retry' : undefined}
+            onAction={online && freshness.canRetry ? () => void refresh() : undefined}
           />
         ) : null}
 

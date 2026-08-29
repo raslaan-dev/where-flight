@@ -1,4 +1,4 @@
-import type { ApiErrorKind } from '@/api/opensky/errors';
+import { ERROR_COPY, type ApiErrorKind } from '@/api/opensky/errors';
 import { formatRelativeTime } from '@/lib/format';
 import type { BannerTone } from '@/components/ui/banner';
 
@@ -14,9 +14,33 @@ import type { BannerTone } from '@/components/ui/banner';
 /** Data older than this stops being "current" and starts being "last known". */
 export const STALE_AFTER_SECONDS = 90;
 
+/**
+ * Failures where issuing the very same request again could plausibly work.
+ *
+ * Listed explicitly rather than derived from ERROR_COPY's `primaryAction`,
+ * which is a different question: BUDGET_EXHAUSTED offers "Open settings", but
+ * a retry with no credits left fails identically, and AUTH_INVALID offers the
+ * same while the rejected credentials stay rejected. Retrying rate limiting
+ * actively makes it worse.
+ */
+const RETRYABLE = new Set<ApiErrorKind>(['TIMEOUT', 'SERVER', 'BAD_PAYLOAD']);
+
+/**
+ * Failures that are not the app breaking: they clear up on their own, or need
+ * a decision in Settings. Shown amber rather than red, so a red banner keeps
+ * meaning "something is actually wrong".
+ */
+const SELF_RESOLVING = new Set<ApiErrorKind>(['RATE_LIMITED', 'BUDGET_EXHAUSTED']);
+
 export type Freshness = {
   tone: BannerTone;
   message: string;
+  /**
+   * False when pressing retry cannot help — being rate limited, or having
+   * spent the day's allowance. Offering a button that makes things worse is
+   * worse than offering none.
+   */
+  canRetry: boolean;
 } | null;
 
 export type FreshnessInput = {
@@ -46,22 +70,37 @@ export function freshnessBanner({
         age === null
           ? 'No connection. Nothing has been downloaded yet, so there is nothing to show.'
           : `No connection. Showing the last positions received, from ${age}.`,
+      canRetry: false,
     };
   }
 
   // A failure with data behind it is a banner, not a takeover: the old
   // positions are still the best answer available.
+  //
+  // The banner names the actual failure rather than saying "could not
+  // refresh". The app already knows exactly which of the eight kinds it hit
+  // and has plain-English copy for each; collapsing them all into one generic
+  // sentence threw that away and left the user guessing whether the problem
+  // was their account, their allowance, their signal, or OpenSky itself.
   if (errorKind !== null && age !== null) {
-    return { tone: 'danger', message: `Could not refresh. Showing positions from ${age}.` };
+    return {
+      tone: SELF_RESOLVING.has(errorKind) ? 'warn' : 'danger',
+      message: `${ERROR_COPY[errorKind].title}. Showing positions from ${age}.`,
+      canRetry: RETRYABLE.has(errorKind),
+    };
   }
 
   if (fromCache && age !== null) {
-    return { tone: 'info', message: `Showing saved positions from ${age}. Refreshing…` };
+    return {
+      tone: 'info',
+      message: `Showing saved positions from ${age}. Refreshing…`,
+      canRetry: false,
+    };
   }
 
   const ageSeconds = lastLoadedAt === null ? null : (now - lastLoadedAt) / 1000;
   if (ageSeconds !== null && ageSeconds > STALE_AFTER_SECONDS) {
-    return { tone: 'warn', message: `These positions are from ${age}.` };
+    return { tone: 'warn', message: `These positions are from ${age}.`, canRetry: true };
   }
 
   return null;
