@@ -45,3 +45,6 @@ example
 # local editor/tooling config
 .claude/
 scripts/
+
+# JetBrains IDE state (local, and it churns on every device connection)
+.idea/
